@@ -139,6 +139,30 @@
               頂部簡短文字
               <textarea id="site-feature-text-input" name="heroFeatureText" rows="3" placeholder="輸入一段簡短介紹，會顯示在首頁最上方單張照片區塊。"></textarea>
             </label>
+            <label>
+              產品責任險按鈕名稱
+              <input id="site-insurance-label-input" name="insuranceLabel" placeholder="產品責任險">
+            </label>
+            <label>
+              關於我們按鈕名稱
+              <input id="site-about-label-input" name="aboutLabel" placeholder="關於我們">
+            </label>
+            <label class="span-2">
+              產品責任險圖片路徑
+              <input id="site-insurance-image-input" name="insuranceImage" placeholder="assets/site/insurance.jpg">
+            </label>
+            <label class="span-2">
+              產品責任險文字說明
+              <textarea id="site-insurance-text-input" name="insuranceText" rows="4" placeholder="輸入產品責任險的保險說明、承保資訊或補充文字。"></textarea>
+            </label>
+            <label class="span-2">
+              關於我們圖片路徑
+              <input id="site-about-image-input" name="aboutImage" placeholder="assets/site/about.jpg">
+            </label>
+            <label class="span-2">
+              關於我們文字介紹
+              <textarea id="site-about-text-input" name="aboutText" rows="4" placeholder="輸入品牌介紹、店家故事或服務理念。"></textarea>
+            </label>
           </form>
 
           <section class="upload-card">
@@ -160,10 +184,22 @@
                 <input id="site-feature-file" type="file" accept="image/*">
               </label>
               <button id="upload-site-feature-image" class="button button-secondary" type="button">上傳頂部照片</button>
+              <label class="file-pick">
+                <span>選擇產品責任險圖片</span>
+                <input id="site-insurance-file" type="file" accept="image/*">
+              </label>
+              <button id="upload-site-insurance-image" class="button button-secondary" type="button">上傳產品責任險圖片</button>
+              <label class="file-pick">
+                <span>選擇關於我們圖片</span>
+                <input id="site-about-file" type="file" accept="image/*">
+              </label>
+              <button id="upload-site-about-image" class="button button-secondary" type="button">上傳關於我們圖片</button>
             </div>
             <div class="gallery-preview">
               <div id="site-logo-preview"></div>
               <div id="site-feature-preview"></div>
+              <div id="site-insurance-preview"></div>
+              <div id="site-about-preview"></div>
             </div>
           </section>
 

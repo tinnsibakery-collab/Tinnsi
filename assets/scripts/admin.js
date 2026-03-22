@@ -142,6 +142,12 @@ const DEFAULT_SITE = {
   heroFeatureImage: "",
   heroFeatureTitle: "",
   heroFeatureText: "",
+  insuranceLabel: "產品責任險",
+  insuranceImage: "",
+  insuranceText: "可在這裡填寫產品責任險的保險說明、承保資訊與補充文字。",
+  aboutLabel: "關於我們",
+  aboutImage: "",
+  aboutText: "可在這裡填寫品牌介紹、店家故事與圖片。",
   theme: structuredClone(DEFAULT_THEME),
   updatedAt: ""
 };
@@ -211,12 +217,24 @@ const elements = {
   siteFeatureImage: document.querySelector("#site-feature-image-input"),
   siteFeatureTitle: document.querySelector("#site-feature-title-input"),
   siteFeatureText: document.querySelector("#site-feature-text-input"),
+  siteInsuranceLabel: document.querySelector("#site-insurance-label-input"),
+  siteInsuranceImage: document.querySelector("#site-insurance-image-input"),
+  siteInsuranceText: document.querySelector("#site-insurance-text-input"),
+  siteAboutLabel: document.querySelector("#site-about-label-input"),
+  siteAboutImage: document.querySelector("#site-about-image-input"),
+  siteAboutText: document.querySelector("#site-about-text-input"),
   siteLogoFile: document.querySelector("#site-logo-file"),
   uploadSiteLogo: document.querySelector("#upload-site-logo"),
   siteFeatureFile: document.querySelector("#site-feature-file"),
   uploadSiteFeatureImage: document.querySelector("#upload-site-feature-image"),
+  siteInsuranceFile: document.querySelector("#site-insurance-file"),
+  uploadSiteInsuranceImage: document.querySelector("#upload-site-insurance-image"),
+  siteAboutFile: document.querySelector("#site-about-file"),
+  uploadSiteAboutImage: document.querySelector("#upload-site-about-image"),
   siteLogoPreview: document.querySelector("#site-logo-preview"),
   siteFeaturePreview: document.querySelector("#site-feature-preview"),
+  siteInsurancePreview: document.querySelector("#site-insurance-preview"),
+  siteAboutPreview: document.querySelector("#site-about-preview"),
   themeEditor: document.querySelector("#theme-editor"),
   addProduct: document.querySelector("#add-product"),
   duplicateProduct: document.querySelector("#duplicate-product"),
@@ -304,7 +322,13 @@ function bindEvents() {
     elements.siteLogoImage,
     elements.siteFeatureImage,
     elements.siteFeatureTitle,
-    elements.siteFeatureText
+    elements.siteFeatureText,
+    elements.siteInsuranceLabel,
+    elements.siteInsuranceImage,
+    elements.siteInsuranceText,
+    elements.siteAboutLabel,
+    elements.siteAboutImage,
+    elements.siteAboutText
   ].forEach((field) => {
     field.addEventListener("input", handleSiteInput);
   });
@@ -326,6 +350,8 @@ function bindEvents() {
   elements.uploadImages.addEventListener("click", uploadSelectedImages);
   elements.uploadSiteLogo.addEventListener("click", () => uploadSiteAsset("logo"));
   elements.uploadSiteFeatureImage.addEventListener("click", () => uploadSiteAsset("hero"));
+  elements.uploadSiteInsuranceImage.addEventListener("click", () => uploadSiteAsset("insurance"));
+  elements.uploadSiteAboutImage.addEventListener("click", () => uploadSiteAsset("about"));
 }
 
 async function loadLocalSeedData() {
@@ -762,7 +788,13 @@ function handleSiteInput() {
     logoImage: elements.siteLogoImage.value,
     heroFeatureImage: elements.siteFeatureImage.value,
     heroFeatureTitle: elements.siteFeatureTitle.value,
-    heroFeatureText: elements.siteFeatureText.value
+    heroFeatureText: elements.siteFeatureText.value,
+    insuranceLabel: elements.siteInsuranceLabel.value,
+    insuranceImage: elements.siteInsuranceImage.value,
+    insuranceText: elements.siteInsuranceText.value,
+    aboutLabel: elements.siteAboutLabel.value,
+    aboutImage: elements.siteAboutImage.value,
+    aboutText: elements.siteAboutText.value
   });
   state.siteDirty = true;
   renderDirtyIndicator();
@@ -783,6 +815,12 @@ function renderSiteForm() {
   elements.siteFeatureImage.value = state.site.heroFeatureImage;
   elements.siteFeatureTitle.value = state.site.heroFeatureTitle;
   elements.siteFeatureText.value = state.site.heroFeatureText;
+  elements.siteInsuranceLabel.value = state.site.insuranceLabel;
+  elements.siteInsuranceImage.value = state.site.insuranceImage;
+  elements.siteInsuranceText.value = state.site.insuranceText;
+  elements.siteAboutLabel.value = state.site.aboutLabel;
+  elements.siteAboutImage.value = state.site.aboutImage;
+  elements.siteAboutText.value = state.site.aboutText;
   renderThemeForm();
   renderSiteAssetPreviews();
   hydratingSiteForm = false;
@@ -952,6 +990,8 @@ function renderGalleryPreview(product) {
 function renderSiteAssetPreviews() {
   renderSiteAssetPreview(elements.siteLogoPreview, state.site.logoImage, "Logo 預覽");
   renderSiteAssetPreview(elements.siteFeaturePreview, state.site.heroFeatureImage, "頂部照片預覽");
+  renderSiteAssetPreview(elements.siteInsurancePreview, state.site.insuranceImage, "產品責任險預覽");
+  renderSiteAssetPreview(elements.siteAboutPreview, state.site.aboutImage, "關於我們預覽");
 }
 
 function renderSiteAssetPreview(container, assetPath, altText) {
@@ -1046,7 +1086,13 @@ function syncEditorStateBeforeCommit() {
     logoImage: elements.siteLogoImage.value,
     heroFeatureImage: elements.siteFeatureImage.value,
     heroFeatureTitle: elements.siteFeatureTitle.value,
-    heroFeatureText: elements.siteFeatureText.value
+    heroFeatureText: elements.siteFeatureText.value,
+    insuranceLabel: elements.siteInsuranceLabel.value,
+    insuranceImage: elements.siteInsuranceImage.value,
+    insuranceText: elements.siteInsuranceText.value,
+    aboutLabel: elements.siteAboutLabel.value,
+    aboutImage: elements.siteAboutImage.value,
+    aboutText: elements.siteAboutText.value
   });
 
   const product = state.products[state.currentIndex];
@@ -1318,12 +1364,50 @@ async function uploadSiteAsset(kind) {
     return;
   }
 
+  const assetConfig = {
+    logo: {
+      fileInput: elements.siteLogoFile,
+      pathInput: elements.siteLogoImage,
+      stateKey: "logoImage",
+      assetType: "logo",
+      label: "Logo"
+    },
+    hero: {
+      fileInput: elements.siteFeatureFile,
+      pathInput: elements.siteFeatureImage,
+      stateKey: "heroFeatureImage",
+      assetType: "hero",
+      label: "頂部照片"
+    },
+    insurance: {
+      fileInput: elements.siteInsuranceFile,
+      pathInput: elements.siteInsuranceImage,
+      stateKey: "insuranceImage",
+      assetType: "insurance",
+      label: "產品責任險圖片"
+    },
+    about: {
+      fileInput: elements.siteAboutFile,
+      pathInput: elements.siteAboutImage,
+      stateKey: "aboutImage",
+      assetType: "about",
+      label: "關於我們圖片"
+    }
+  };
+
+  const config = assetConfig[kind];
+  if (!config) {
+    appendStatus("不支援的網站圖片類型。", true);
+    return;
+  }
+
+  const { fileInput, pathInput, stateKey, assetType, label } = config;
   const isLogo = kind === "logo";
-  const fileInput = isLogo ? elements.siteLogoFile : elements.siteFeatureFile;
-  const pathInput = isLogo ? elements.siteLogoImage : elements.siteFeatureImage;
   const file = fileInput?.files?.[0];
 
   if (!file) {
+    appendStatus(`請先選擇${label}檔案。`, true);
+    return;
     appendStatus(`請先選擇${isLogo ? " Logo" : "頂部照片"}檔案。`, true);
     return;
   }
@@ -1334,7 +1418,7 @@ async function uploadSiteAsset(kind) {
     const useDesktopBridge = canUseDesktopGitHub();
     ensureRepositorySettings({ requireToken: true });
 
-    const targetPath = buildSiteAssetPath(isLogo ? "logo" : "hero", file.name);
+    const targetPath = buildSiteAssetPath(assetType, file.name);
     const base64 = await encodeFileToBase64(file);
     if (useDesktopBridge) {
       await syncDesktopSettings(true);
@@ -1347,15 +1431,9 @@ async function uploadSiteAsset(kind) {
       await putRepoFile(targetPath, base64, `chore: upload site asset ${file.name}`);
     }
 
-    if (isLogo) {
-      state.site.logoImage = targetPath;
-      pathInput.value = targetPath;
-      fileInput.value = "";
-    } else {
-      state.site.heroFeatureImage = targetPath;
-      pathInput.value = targetPath;
-      fileInput.value = "";
-    }
+    state.site[stateKey] = targetPath;
+    pathInput.value = targetPath;
+    fileInput.value = "";
 
     state.siteDirty = true;
     renderSiteAssetPreviews();
@@ -1369,7 +1447,11 @@ async function uploadSiteAsset(kind) {
     }
 
     appendStatus(`${isLogo ? "Logo" : "頂部照片"}已上傳並更新路徑。`);
+    appendStatus(`${label}已上傳並更新設定。`);
+    return;
   } catch (error) {
+    appendStatus(`${label}上傳失敗：${error.message}`, true);
+    return;
     appendStatus(`${isLogo ? "Logo" : "頂部照片"}上傳失敗：${error.message}`, true);
   } finally {
     setBusy(false);
@@ -1790,7 +1872,9 @@ function setBusy(nextBusy) {
     elements.addSection,
     elements.uploadImages,
     elements.uploadSiteLogo,
-    elements.uploadSiteFeatureImage
+    elements.uploadSiteFeatureImage,
+    elements.uploadSiteInsuranceImage,
+    elements.uploadSiteAboutImage
   ].forEach((button) => {
     button.disabled = nextBusy;
   });
@@ -1814,8 +1898,16 @@ function setBusy(nextBusy) {
     elements.siteFeatureImage,
     elements.siteFeatureTitle,
     elements.siteFeatureText,
+    elements.siteInsuranceLabel,
+    elements.siteInsuranceImage,
+    elements.siteInsuranceText,
+    elements.siteAboutLabel,
+    elements.siteAboutImage,
+    elements.siteAboutText,
     elements.siteLogoFile,
     elements.siteFeatureFile,
+    elements.siteInsuranceFile,
+    elements.siteAboutFile,
     elements.imageInput,
     elements.setCoverOnUpload,
     ...(elements.themeEditor ? Array.from(elements.themeEditor.querySelectorAll("input")) : []),
@@ -1837,6 +1929,12 @@ function normalizeSite(site = {}) {
     heroFeatureImage: String(site.heroFeatureImage || ""),
     heroFeatureTitle: String(site.heroFeatureTitle || ""),
     heroFeatureText: String(site.heroFeatureText || ""),
+    insuranceLabel: String(site.insuranceLabel || DEFAULT_SITE.insuranceLabel),
+    insuranceImage: String(site.insuranceImage || ""),
+    insuranceText: String(site.insuranceText || DEFAULT_SITE.insuranceText),
+    aboutLabel: String(site.aboutLabel || DEFAULT_SITE.aboutLabel),
+    aboutImage: String(site.aboutImage || ""),
+    aboutText: String(site.aboutText || DEFAULT_SITE.aboutText),
     socialLinks: {
       ...structuredClone(DEFAULT_SITE.socialLinks),
       ...(site.socialLinks || {}),

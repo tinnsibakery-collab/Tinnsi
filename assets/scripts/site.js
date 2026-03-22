@@ -29,6 +29,12 @@ const DEFAULT_SITE = {
   heroFeatureImage: "",
   heroFeatureTitle: "",
   heroFeatureText: "",
+  insuranceLabel: "產品責任險",
+  insuranceImage: "",
+  insuranceText: "可在後台填寫產品責任險的保險內容、保單圖片與補充說明。",
+  aboutLabel: "關於我們",
+  aboutImage: "",
+  aboutText: "可在後台填寫品牌介紹、主視覺照片與品牌故事。",
   currency: "TWD",
   theme: structuredClone(DEFAULT_THEME)
 };
@@ -66,6 +72,21 @@ const SOCIAL_META = {
   }
 };
 
+const SITE_INFO_ITEMS = [
+  {
+    key: "insurance",
+    labelKey: "insuranceLabel",
+    imageKey: "insuranceImage",
+    textKey: "insuranceText"
+  },
+  {
+    key: "about",
+    labelKey: "aboutLabel",
+    imageKey: "aboutImage",
+    textKey: "aboutText"
+  }
+];
+
 const state = {
   site: structuredClone(DEFAULT_SITE),
   allProducts: [],
@@ -76,7 +97,8 @@ const state = {
   subcategory: "",
   isCategoryDrawerOpen: false,
   isDetailDrawerOpen: false,
-  detailImagePath: ""
+  detailImagePath: "",
+  activeSiteInfoKey: ""
 };
 
 const compactLayoutQuery = window.matchMedia("(max-width: 980px)");
@@ -98,7 +120,15 @@ const elements = {
   heroFeatureTitle: document.querySelector("#hero-feature-title"),
   heroFeatureText: document.querySelector("#hero-feature-text"),
   siteContact: document.querySelector("#site-contact"),
+  siteInfoActions: document.querySelector("#site-info-actions"),
   socialLinks: document.querySelector("#site-social-links"),
+  siteInfoBackdrop: document.querySelector("#site-info-backdrop"),
+  siteInfoModal: document.querySelector("#site-info-modal"),
+  siteInfoClose: document.querySelector("#site-info-close"),
+  siteInfoTitle: document.querySelector("#site-info-title"),
+  siteInfoMedia: document.querySelector("#site-info-media"),
+  siteInfoImage: document.querySelector("#site-info-image"),
+  siteInfoText: document.querySelector("#site-info-text"),
   feedback: document.querySelector("#catalog-feedback"),
   grid: document.querySelector("#product-grid"),
   categoryFilters: document.querySelector("#category-filters"),
@@ -210,6 +240,14 @@ function bindEvents() {
     closeDetailDrawer();
   });
 
+  elements.siteInfoClose?.addEventListener("click", () => {
+    closeSiteInfoModal();
+  });
+
+  elements.siteInfoBackdrop?.addEventListener("click", () => {
+    closeSiteInfoModal();
+  });
+
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") {
       return;
@@ -222,6 +260,10 @@ function bindEvents() {
 
     if (state.isDetailDrawerOpen) {
       closeDetailDrawer();
+    }
+
+    if (state.activeSiteInfoKey) {
+      closeSiteInfoModal();
     }
   });
 }
@@ -361,6 +403,7 @@ function applySiteMeta() {
     elements.heroFeatureText.textContent = featureText;
   }
 
+  renderSiteInfoActions(site);
   renderSocialLinks(site.socialLinks, site.contactEmail);
 }
 
@@ -397,6 +440,87 @@ function renderSocialLinks(socialLinks = {}, contactEmail = "") {
   });
 
   elements.socialLinks.hidden = false;
+}
+
+function renderSiteInfoActions(site) {
+  if (!elements.siteInfoActions) {
+    return;
+  }
+
+  elements.siteInfoActions.innerHTML = "";
+  const entries = getSiteInfoEntries(site);
+
+  if (!entries.length) {
+    elements.siteInfoActions.hidden = true;
+    closeSiteInfoModal();
+    return;
+  }
+
+  elements.siteInfoActions.hidden = false;
+
+  entries.forEach((entry) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "site-info-trigger";
+    button.textContent = entry.label;
+    button.addEventListener("click", () => {
+      openSiteInfoModal(entry.key);
+    });
+    elements.siteInfoActions.append(button);
+  });
+}
+
+function getSiteInfoEntries(site) {
+  return SITE_INFO_ITEMS
+    .map((item) => ({
+      key: item.key,
+      label: asText(site[item.labelKey]).trim(),
+      image: asText(site[item.imageKey]).trim(),
+      text: asText(site[item.textKey]).trim()
+    }))
+    .filter((item) => item.label && (item.image || item.text));
+}
+
+function openSiteInfoModal(key) {
+  const entry = getSiteInfoEntries(state.site).find((item) => item.key === key);
+  if (!entry || !elements.siteInfoModal) {
+    return;
+  }
+
+  state.activeSiteInfoKey = key;
+
+  if (elements.siteInfoTitle) {
+    elements.siteInfoTitle.textContent = entry.label;
+  }
+  if (elements.siteInfoText) {
+    elements.siteInfoText.textContent = entry.text || "";
+  }
+  if (elements.siteInfoImage && elements.siteInfoMedia) {
+    if (entry.image) {
+      elements.siteInfoMedia.hidden = false;
+      elements.siteInfoImage.src = entry.image;
+      elements.siteInfoImage.alt = entry.label;
+    } else {
+      elements.siteInfoMedia.hidden = true;
+      elements.siteInfoImage.removeAttribute("src");
+      elements.siteInfoImage.alt = "";
+    }
+  }
+
+  elements.siteInfoModal.hidden = false;
+  if (elements.siteInfoBackdrop) {
+    elements.siteInfoBackdrop.hidden = false;
+  }
+}
+
+function closeSiteInfoModal() {
+  state.activeSiteInfoKey = "";
+  if (elements.siteInfoModal) {
+    elements.siteInfoModal.hidden = true;
+  }
+  if (elements.siteInfoBackdrop) {
+    elements.siteInfoBackdrop.hidden = true;
+  }
 }
 
 function renderCategoryMenu() {
@@ -824,6 +948,12 @@ function normalizeSite(site = {}) {
     heroFeatureImage: asText(site.heroFeatureImage),
     heroFeatureTitle: asText(site.heroFeatureTitle),
     heroFeatureText: asText(site.heroFeatureText),
+    insuranceLabel: asText(site.insuranceLabel, DEFAULT_SITE.insuranceLabel),
+    insuranceImage: asText(site.insuranceImage),
+    insuranceText: asText(site.insuranceText, DEFAULT_SITE.insuranceText),
+    aboutLabel: asText(site.aboutLabel, DEFAULT_SITE.aboutLabel),
+    aboutImage: asText(site.aboutImage),
+    aboutText: asText(site.aboutText, DEFAULT_SITE.aboutText),
     currency: asText(site.currency, DEFAULT_SITE.currency),
     theme: normalizeTheme(site.theme)
   };

@@ -130,10 +130,25 @@
       </main>
 
       <footer class="site-footer">
-        <p id="site-contact">聯絡我們：hello@tinnsi.example</p>
+        <div class="site-footer-meta">
+          <p id="site-contact">聯絡我們：hello@tinnsi.example</p>
+          <div id="site-info-actions" class="site-info-actions" aria-label="網站資訊"></div>
+        </div>
         <div id="site-social-links" class="social-links" aria-label="社群連結"></div>
       </footer>
     </div>
+
+    <div id="site-info-backdrop" class="site-info-backdrop" hidden></div>
+    <section id="site-info-modal" class="site-info-modal" hidden aria-live="polite" aria-labelledby="site-info-title">
+      <div class="site-info-modal-header">
+        <h2 id="site-info-title"></h2>
+        <button id="site-info-close" class="button button-secondary site-info-close" type="button">關閉</button>
+      </div>
+      <div id="site-info-media" class="site-info-media" hidden>
+        <img id="site-info-image" src="" alt="">
+      </div>
+      <p id="site-info-text" class="site-info-text"></p>
+    </section>
 
     <script src="./assets/scripts/site.js" type="module"></script>
   </body>
