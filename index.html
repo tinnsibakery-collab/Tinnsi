@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="靜態產品型錄網站，支援從本機後台編輯資料後發佈到 GitHub Pages。">
+    <title>Tinnsi 產品型錄</title>
+    <link rel="stylesheet" href="./assets/styles/site.css">
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">CURATED COLLECTION</p>
+          <h1 id="site-title">Tinnsi 產品型錄</h1>
+          <p id="site-tagline" class="hero-tagline">讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#catalog">立即看產品</a>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-stat">
+            <span class="hero-stat-label">上架商品</span>
+            <strong id="active-count">0</strong>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-label">最新更新</span>
+            <strong id="last-updated">載入中</strong>
+          </div>
+          <p class="hero-note">網站內容來自 <code>data/products.json</code>，本機後台發佈後 GitHub Pages 會自動同步更新。</p>
+        </div>
+      </header>
+
+      <main class="main-layout" id="catalog">
+        <section class="catalog-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">PRODUCTS</p>
+              <h2>商品總覽</h2>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <label class="search-box">
+              <span class="sr-only">搜尋產品</span>
+              <input id="search-input" type="search" placeholder="搜尋產品名稱、分類、SKU">
+            </label>
+            <div id="category-filters" class="category-filters" aria-label="產品分類"></div>
+          </div>
+
+          <div id="catalog-feedback" class="feedback" aria-live="polite">正在載入產品資料...</div>
+          <div id="product-grid" class="product-grid"></div>
+        </section>
+
+        <aside class="detail-panel">
+          <div id="detail-empty" class="detail-empty">
+            <p class="eyebrow">DETAIL</p>
+            <h2>點選一項產品</h2>
+            <p>右側會先顯示產品照片、簡短介紹與訂購入口，其他資訊則收在可展開的折頁中。</p>
+          </div>
+
+          <article id="product-detail" class="product-detail" hidden>
+            <div class="detail-image-wrap">
+              <img id="detail-image" src="" alt="">
+            </div>
+
+            <div class="detail-copy">
+              <div class="detail-header">
+                <div>
+                  <p id="detail-category" class="detail-category"></p>
+                  <h2 id="detail-name"></h2>
+                </div>
+                <p id="detail-price" class="detail-price"></p>
+              </div>
+
+              <p id="detail-subtitle" class="detail-subtitle"></p>
+              <p id="detail-summary" class="detail-summary"></p>
+
+              <div class="detail-actions">
+                <a id="detail-order-link" class="button button-primary" href="#" target="_blank" rel="noreferrer">填寫訂購單</a>
+              </div>
+
+              <section>
+                <h3>更多照片</h3>
+                <div id="detail-gallery" class="detail-gallery"></div>
+              </section>
+
+              <section>
+                <h3>更多資訊</h3>
+                <div id="detail-sections" class="accordion-list"></div>
+              </section>
+            </div>
+          </article>
+        </aside>
+      </main>
+
+      <footer class="site-footer">
+        <p id="site-contact">如需合作或客製化，請在商品訂購單中留下需求。</p>
+      </footer>
+    </div>
+
+    <script src="./assets/scripts/site.js" type="module"></script>
+  </body>
+</html>

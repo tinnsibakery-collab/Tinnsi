@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="本機商品後台，可直接編輯產品與發佈到 GitHub Pages。">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Tinnsi 本機後台</title>
+    <link rel="stylesheet" href="../assets/styles/admin.css">
+  </head>
+  <body>
+    <div class="admin-shell">
+      <header class="admin-hero">
+        <div>
+          <p class="eyebrow">LOCAL ADMIN</p>
+          <h1>商品內容後台</h1>
+          <p class="hero-copy">這個後台只給你在本機使用。你可以在這裡新增不限數量的商品、上傳圖片、編輯折頁與訂購連結，最後按下按鈕發佈到 GitHub，讓公開靜態網站同步更新。</p>
+        </div>
+        <div class="hero-actions">
+          <a class="button button-secondary" href="../">回前台網站</a>
+        </div>
+      </header>
+
+      <main class="admin-layout">
+        <section class="panel stack">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">PUBLISH</p>
+              <h2>GitHub 連線</h2>
+            </div>
+            <p class="panel-note">建議使用 Fine-grained PAT，權限至少要有 Contents: Read and write。</p>
+          </div>
+
+          <form id="github-form" class="grid-form">
+            <label>
+              GitHub Owner
+              <input id="github-owner" name="owner" autocomplete="off" placeholder="whalechao">
+            </label>
+            <label>
+              Repository
+              <input id="github-repo" name="repo" autocomplete="off" placeholder="Tinnsi">
+            </label>
+            <label>
+              Branch
+              <input id="github-branch" name="branch" autocomplete="off" placeholder="main" value="main">
+            </label>
+            <label class="span-2">
+              Personal Access Token
+              <input id="github-token" name="token" type="password" autocomplete="off" placeholder="github_pat_...">
+            </label>
+            <label class="checkbox span-2">
+              <input id="remember-token" name="rememberToken" type="checkbox">
+              在這台裝置記住 Token
+            </label>
+            <label class="span-2">
+              這次更新說明
+              <input id="publish-note" name="publishNote" autocomplete="off" placeholder="例如：新增三項產品、更新圖片與折頁">
+            </label>
+          </form>
+
+          <div class="action-row">
+            <button id="test-connection" class="button button-secondary" type="button">測試連線</button>
+            <button id="load-repo" class="button button-secondary" type="button">從 GitHub 載入</button>
+            <button id="publish-all" class="button button-primary" type="button">發佈到 GitHub</button>
+            <button id="download-backup" class="button button-ghost" type="button">下載 JSON 備份</button>
+            <label class="button button-ghost file-button">
+              匯入 JSON 備份
+              <input id="import-backup" type="file" accept="application/json">
+            </label>
+          </div>
+
+          <div class="status-card">
+            <p class="status-title">狀態紀錄</p>
+            <div id="status-log" class="status-log" aria-live="polite"></div>
+            <p id="pages-link" class="pages-link"></p>
+          </div>
+        </section>
+
+        <section class="panel stack">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">SITE META</p>
+              <h2>網站資訊</h2>
+            </div>
+            <p class="panel-note">這些欄位會同步到前台首頁標題、描述與聯絡方式。</p>
+          </div>
+
+          <form id="site-form" class="grid-form">
+            <label class="span-2">
+              網站標題
+              <input id="site-title-input" name="title" placeholder="品牌名稱 / 型錄名稱">
+            </label>
+            <label class="span-2">
+              網站描述
+              <textarea id="site-tagline-input" name="tagline" rows="3" placeholder="首頁主視覺描述"></textarea>
+            </label>
+            <label>
+              聯絡信箱
+              <input id="site-contact-input" name="contactEmail" placeholder="hello@example.com">
+            </label>
+            <label>
+              預設幣別
+              <input id="site-currency-input" name="currency" placeholder="TWD">
+            </label>
+          </form>
+        </section>
+
+        <section class="panel stack product-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">PRODUCTS</p>
+              <h2>商品編輯</h2>
+            </div>
+            <p class="panel-note">商品數量不限，前台會以照片、簡短介紹與「填寫訂購單」為主，其餘資訊都來自你在後台設定的折頁 sections。</p>
+          </div>
+
+          <div class="product-actions">
+            <button id="add-product" class="button button-secondary" type="button">新增商品</button>
+            <button id="duplicate-product" class="button button-secondary" type="button">複製商品</button>
+            <button id="delete-product" class="button button-ghost" type="button">刪除商品</button>
+            <span id="dirty-indicator" class="dirty-indicator">目前沒有未發佈變更</span>
+          </div>
+
+          <div class="product-layout">
+            <aside class="product-list-wrap">
+              <div id="product-list" class="product-list"></div>
+            </aside>
+
+            <section class="editor-wrap">
+              <form id="product-form" class="grid-form">
+                <label>
+                  商品 ID
+                  <input id="product-id" name="id" placeholder="product-id">
+                </label>
+                <label>
+                  商品名稱
+                  <input id="product-name" name="name" placeholder="商品名稱">
+                </label>
+                <label class="span-2">
+                  副標題
+                  <input id="product-subtitle" name="subtitle" placeholder="短句、副標或賣點">
+                </label>
+                <label class="span-2">
+                  簡短介紹
+                  <textarea id="product-summary" name="summary" rows="3" placeholder="前台主要會顯示這段介紹"></textarea>
+                </label>
+                <label>
+                  分類
+                  <input id="product-category" name="category" placeholder="例如：Dessert / Living / Travel">
+                </label>
+                <label>
+                  SKU
+                  <input id="product-sku" name="sku" placeholder="SKU-001">
+                </label>
+                <label>
+                  價格
+                  <input id="product-price" name="price" type="number" min="0" step="1" placeholder="1280">
+                </label>
+                <label>
+                  幣別
+                  <input id="product-currency" name="currency" placeholder="TWD">
+                </label>
+                <label>
+                  狀態
+                  <select id="product-status" name="status">
+                    <option value="active">active</option>
+                    <option value="draft">draft</option>
+                    <option value="archived">archived</option>
+                  </select>
+                </label>
+                <label class="checkbox">
+                  <input id="product-highlight" name="highlight" type="checkbox">
+                  設為主打商品
+                </label>
+                <label class="span-2">
+                  Google 表單連結
+                  <input id="product-order-link" name="orderLink" placeholder="https://docs.google.com/forms/...">
+                </label>
+                <label class="span-2">
+                  封面圖片路徑
+                  <input id="product-cover" name="cover" placeholder="assets/products/product-id/cover.jpg">
+                </label>
+                <label class="span-2">
+                  標籤
+                  <textarea id="product-badges" name="badges" rows="3" placeholder="每行一個，例如：新品"></textarea>
+                </label>
+                <label class="span-2">
+                  圖庫圖片路徑
+                  <textarea id="product-gallery" name="gallery" rows="4" placeholder="每行一張圖片路徑"></textarea>
+                </label>
+              </form>
+
+              <div class="sections-card">
+                <div class="sections-header">
+                  <div>
+                    <p class="eyebrow">SECTIONS</p>
+                    <h3>折頁內容</h3>
+                    <p class="panel-note">這裡的標題與內容會直接顯示在前台的可展開折頁。</p>
+                  </div>
+                  <button id="add-section" class="button button-secondary" type="button">新增折頁</button>
+                </div>
+                <div id="sections-editor" class="sections-editor"></div>
+              </div>
+
+              <div class="upload-card">
+                <div>
+                  <p class="eyebrow">IMAGES</p>
+                  <h3>上傳商品照片</h3>
+                  <p class="panel-note">圖片會直接上傳到 GitHub Repo 的 <code>assets/products/商品ID/</code> 目錄。</p>
+                </div>
+                <div class="upload-controls">
+                  <label class="file-pick">
+                    <span>選擇圖片</span>
+                    <input id="image-input" type="file" accept="image/*" multiple>
+                  </label>
+                  <label class="checkbox">
+                    <input id="set-cover-on-upload" type="checkbox" checked>
+                    第一張同步設為封面
+                  </label>
+                  <button id="upload-images" class="button button-secondary" type="button">上傳到 GitHub</button>
+                </div>
+                <div id="gallery-preview" class="gallery-preview"></div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="../assets/scripts/admin.js" type="module"></script>
+  </body>
+</html>

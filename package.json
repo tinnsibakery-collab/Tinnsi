@@ -1,0 +1,11 @@
+{
+  "name": "tinnsi-github-catalog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static product catalog with a local browser admin that publishes content to GitHub Pages.",
+  "scripts": {
+    "build:pages": "node scripts/build-pages.mjs",
+    "preview": "node scripts/preview.mjs",
+    "check": "node scripts/check.mjs"
+  }
+}

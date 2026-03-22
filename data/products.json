@@ -1,0 +1,78 @@
+{
+  "site": {
+    "title": "Tinnsi 產品型錄",
+    "tagline": "讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。",
+    "contactEmail": "hello@tinnsi.example",
+    "currency": "TWD",
+    "updatedAt": "2026-03-21T20:30:00+08:00"
+  },
+  "products": [
+    {
+      "id": "aurora-bottle",
+      "name": "Aurora 保溫瓶",
+      "subtitle": "以霧面金屬質感呈現晨曦色調，適合外出與日常攜帶。",
+      "summary": "主視覺以產品照片為主，其他資訊收納在折頁中，維持精品感與閱讀節奏。",
+      "price": 1280,
+      "currency": "TWD",
+      "category": "Travel",
+      "sku": "AU-TH-001",
+      "status": "active",
+      "highlight": true,
+      "cover": "assets/placeholders/thermo-bottle.svg",
+      "gallery": [
+        "assets/placeholders/thermo-bottle.svg",
+        "assets/placeholders/thermo-bottle-detail.svg"
+      ],
+      "badges": ["新品", "可客製"],
+      "orderLink": "https://docs.google.com/forms/",
+      "sections": [
+        {
+          "title": "產品介紹",
+          "content": "Aurora 保溫瓶採用雙層不鏽鋼結構，適合通勤、旅行與辦公室日常使用。"
+        },
+        {
+          "title": "規格說明",
+          "content": "容量 620ml，建議手洗。保溫保冷效果約 6 至 8 小時。"
+        },
+        {
+          "title": "訂購方式",
+          "content": "點擊「填寫訂購單」後可前往 Google 表單留下需求。"
+        }
+      ],
+      "updatedAt": "2026-03-21T20:30:00+08:00"
+    },
+    {
+      "id": "linen-lamp",
+      "name": "Linen 桌燈",
+      "subtitle": "溫潤布罩與圓弧底座，適合居家陳列與選物風格空間。",
+      "summary": "產品主資訊保持精簡，讓圖片先說話，其餘材質與尺寸細節再由折頁展開。",
+      "price": 2380,
+      "currency": "TWD",
+      "category": "Living",
+      "sku": "LN-LP-014",
+      "status": "active",
+      "highlight": false,
+      "cover": "assets/placeholders/linen-lamp.svg",
+      "gallery": [
+        "assets/placeholders/linen-lamp.svg"
+      ],
+      "badges": ["居家選物"],
+      "orderLink": "https://docs.google.com/forms/",
+      "sections": [
+        {
+          "title": "產品介紹",
+          "content": "布罩透出的光線柔和，適合床邊、客廳角落與展示空間。"
+        },
+        {
+          "title": "尺寸與材質",
+          "content": "燈罩直徑約 38cm，高度 52cm，布罩與木質底座搭配。"
+        },
+        {
+          "title": "保養建議",
+          "content": "建議以乾布輕拭，避免長時間潮濕環境。"
+        }
+      ],
+      "updatedAt": "2026-03-20T10:15:00+08:00"
+    }
+  ]
+}

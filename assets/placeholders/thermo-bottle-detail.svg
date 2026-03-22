@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">保溫瓶細節示意圖</title>
+  <desc id="desc">保溫瓶與杯蓋分離展示的插圖。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ef"/>
+      <stop offset="100%" stop-color="#efdcc4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <rect x="360" y="250" width="280" height="460" rx="110" fill="#f7f3ee"/>
+  <rect x="390" y="180" width="220" height="95" rx="36" fill="#302923"/>
+  <rect x="720" y="250" width="126" height="180" rx="46" fill="#302923"/>
+  <circle cx="846" cy="615" r="110" fill="#ffffff" opacity=".45"/>
+  <text x="600" y="790" text-anchor="middle" font-family="Georgia, serif" font-size="56" fill="#7f3710">Detail View</text>
+</svg>
+
