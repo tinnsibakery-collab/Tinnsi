@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Tinnsi Bakery 線上選品與商品展示網站。">
+    <meta
+      name="description"
+      content="Tinnsi Bakery 商品型錄，提供分類瀏覽、商品詳情與可快速更新的品牌展示頁。"
+    >
     <title>Tinnsi Bakery</title>
     <link rel="stylesheet" href="./assets/styles/site.css">
   </head>
@@ -14,7 +17,7 @@
           <p class="eyebrow">CURATED COLLECTION</p>
           <h1 id="site-title">Tinnsi Bakery</h1>
           <p id="site-tagline" class="hero-tagline">
-            讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。
+            以溫暖色調與清楚的商品分類，整理出適合展示與分享的前台型錄。
           </p>
           <div class="hero-actions">
             <a class="button button-primary" href="#catalog">立即看產品</a>
@@ -23,6 +26,25 @@
       </header>
 
       <main class="main-layout" id="catalog">
+        <aside class="category-panel" id="category-panel">
+          <div class="category-panel-header">
+            <div>
+              <p class="eyebrow">CATEGORIES</p>
+              <h2 id="category-nav-title">商品分類</h2>
+            </div>
+            <button
+              id="category-toggle"
+              class="sidebar-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="category-nav"
+            >
+              展開分類
+            </button>
+          </div>
+          <nav id="category-nav" class="category-nav" aria-labelledby="category-nav-title"></nav>
+        </aside>
+
         <section class="catalog-panel">
           <div class="section-heading">
             <div>
@@ -36,7 +58,7 @@
               <span class="sr-only">搜尋產品</span>
               <input id="search-input" type="search" placeholder="搜尋產品名稱、分類或 SKU">
             </label>
-            <div id="category-filters" class="category-filters" aria-label="商品分類"></div>
+            <div id="category-filters" class="category-filters" aria-label="目前篩選"></div>
           </div>
 
           <div id="catalog-feedback" class="feedback" aria-live="polite">正在載入商品資料...</div>
@@ -46,8 +68,8 @@
         <aside class="detail-panel">
           <div id="detail-empty" class="detail-empty">
             <p class="eyebrow">DETAIL</p>
-            <h2>選一項商品看看</h2>
-            <p>點選左側商品卡後，這裡會顯示更多介紹、圖片與訂購入口。</p>
+            <h2>選擇一項商品</h2>
+            <p>從左側分類或商品卡中挑選一項，即可查看圖片、規格與下單連結。</p>
           </div>
 
           <article id="product-detail" class="product-detail" hidden>
@@ -68,7 +90,9 @@
               <p id="detail-summary" class="detail-summary"></p>
 
               <div class="detail-actions">
-                <a id="detail-order-link" class="button button-primary" href="#" target="_blank" rel="noreferrer">前往下單</a>
+                <a id="detail-order-link" class="button button-primary" href="#" target="_blank" rel="noreferrer">
+                  前往下單
+                </a>
               </div>
 
               <section>
@@ -86,7 +110,8 @@
       </main>
 
       <footer class="site-footer">
-        <p id="site-contact">聯絡方式稍後更新。</p>
+        <p id="site-contact">聯絡我們：hello@tinnsi.example</p>
+        <div id="site-social-links" class="social-links" aria-label="社群連結"></div>
       </footer>
     </div>
 

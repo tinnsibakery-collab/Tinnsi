@@ -72,6 +72,11 @@ const DEFAULT_SITE = {
   tagline: "用靜態站穩定呈現產品內容，並從本機後台直接發佈到 GitHub。",
   contactEmail: "",
   currency: "TWD",
+  socialLinks: {
+    instagram: "",
+    facebook: "",
+    line: ""
+  },
   theme: structuredClone(DEFAULT_THEME),
   updatedAt: ""
 };
@@ -84,6 +89,7 @@ const PRODUCT_TEMPLATE = {
   price: null,
   currency: "TWD",
   category: "",
+  subcategory: "",
   sku: "",
   status: "draft",
   highlight: false,
@@ -133,6 +139,9 @@ const elements = {
   siteTagline: document.querySelector("#site-tagline-input"),
   siteContact: document.querySelector("#site-contact-input"),
   siteCurrency: document.querySelector("#site-currency-input"),
+  siteInstagram: document.querySelector("#site-instagram-input"),
+  siteFacebook: document.querySelector("#site-facebook-input"),
+  siteLine: document.querySelector("#site-line-input"),
   themeEditor: document.querySelector("#theme-editor"),
   addProduct: document.querySelector("#add-product"),
   duplicateProduct: document.querySelector("#duplicate-product"),
@@ -151,6 +160,7 @@ const elements = {
     subtitle: document.querySelector("#product-subtitle"),
     summary: document.querySelector("#product-summary"),
     category: document.querySelector("#product-category"),
+    subcategory: document.querySelector("#product-subcategory"),
     sku: document.querySelector("#product-sku"),
     price: document.querySelector("#product-price"),
     currency: document.querySelector("#product-currency"),
@@ -212,7 +222,10 @@ function bindEvents() {
     elements.siteTitle,
     elements.siteTagline,
     elements.siteContact,
-    elements.siteCurrency
+    elements.siteCurrency,
+    elements.siteInstagram,
+    elements.siteFacebook,
+    elements.siteLine
   ].forEach((field) => {
     field.addEventListener("input", handleSiteInput);
   });
@@ -659,7 +672,12 @@ function handleSiteInput() {
     title: elements.siteTitle.value,
     tagline: elements.siteTagline.value,
     contactEmail: elements.siteContact.value,
-    currency: elements.siteCurrency.value
+    currency: elements.siteCurrency.value,
+    socialLinks: {
+      instagram: elements.siteInstagram.value,
+      facebook: elements.siteFacebook.value,
+      line: elements.siteLine.value
+    }
   });
   state.siteDirty = true;
   renderDirtyIndicator();
@@ -672,6 +690,9 @@ function renderSiteForm() {
   elements.siteTagline.value = state.site.tagline;
   elements.siteContact.value = state.site.contactEmail;
   elements.siteCurrency.value = state.site.currency;
+  elements.siteInstagram.value = state.site.socialLinks.instagram;
+  elements.siteFacebook.value = state.site.socialLinks.facebook;
+  elements.siteLine.value = state.site.socialLinks.line;
   renderThemeForm();
   hydratingSiteForm = false;
 }
@@ -712,6 +733,7 @@ function renderCurrentProduct() {
   elements.productFields.subtitle.value = product.subtitle;
   elements.productFields.summary.value = product.summary;
   elements.productFields.category.value = product.category;
+  elements.productFields.subcategory.value = product.subcategory;
   elements.productFields.sku.value = product.sku;
   elements.productFields.price.value = typeof product.price === "number" ? String(product.price) : "";
   elements.productFields.currency.value = product.currency;
@@ -872,6 +894,7 @@ function handleProductInput() {
   product.subtitle = elements.productFields.subtitle.value.trim();
   product.summary = elements.productFields.summary.value.trim();
   product.category = elements.productFields.category.value.trim();
+  product.subcategory = elements.productFields.subcategory.value.trim();
   product.sku = elements.productFields.sku.value.trim();
   product.price = elements.productFields.price.value === "" ? null : Number(elements.productFields.price.value);
   product.currency = elements.productFields.currency.value.trim() || state.site.currency || "TWD";
@@ -895,7 +918,12 @@ function syncEditorStateBeforeCommit() {
     title: elements.siteTitle.value,
     tagline: elements.siteTagline.value,
     contactEmail: elements.siteContact.value,
-    currency: elements.siteCurrency.value
+    currency: elements.siteCurrency.value,
+    socialLinks: {
+      instagram: elements.siteInstagram.value,
+      facebook: elements.siteFacebook.value,
+      line: elements.siteLine.value
+    }
   });
 
   const product = state.products[state.currentIndex];
@@ -909,6 +937,7 @@ function syncEditorStateBeforeCommit() {
   product.subtitle = elements.productFields.subtitle.value.trim();
   product.summary = elements.productFields.summary.value.trim();
   product.category = elements.productFields.category.value.trim();
+  product.subcategory = elements.productFields.subcategory.value.trim();
   product.sku = elements.productFields.sku.value.trim();
   product.price = elements.productFields.price.value === "" ? null : Number(elements.productFields.price.value);
   product.currency = elements.productFields.currency.value.trim() || state.site.currency || "TWD";
@@ -1590,6 +1619,9 @@ function setBusy(nextBusy) {
     elements.siteTagline,
     elements.siteContact,
     elements.siteCurrency,
+    elements.siteInstagram,
+    elements.siteFacebook,
+    elements.siteLine,
     elements.imageInput,
     elements.setCoverOnUpload,
     ...(elements.themeEditor ? Array.from(elements.themeEditor.querySelectorAll("input")) : []),
@@ -1605,6 +1637,10 @@ function normalizeSite(site = {}) {
   return {
     ...structuredClone(DEFAULT_SITE),
     ...site,
+    socialLinks: {
+      ...structuredClone(DEFAULT_SITE.socialLinks),
+      ...(site.socialLinks || {})
+    },
     theme: normalizeTheme(site.theme)
   };
 }
@@ -1631,6 +1667,7 @@ function normalizeProduct(product = {}) {
     ...structuredClone(PRODUCT_TEMPLATE),
     ...product,
     price: typeof product.price === "number" ? product.price : product.price ? Number(product.price) : null,
+    subcategory: String(product.subcategory || ""),
     gallery: Array.isArray(product.gallery) ? uniqueStrings(product.gallery.filter(Boolean)) : [],
     badges: Array.isArray(product.badges) ? product.badges.filter(Boolean) : [],
     sections: Array.isArray(product.sections)

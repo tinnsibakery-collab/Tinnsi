@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="商品資料與圖片只在這台電腦的本機後台維護，儲存後可同步推送到 GitHub Pages 前台。"
+      content="本機後台可編輯商品資料、分類、配色與社群連結，並同步發布到 GitHub Pages。"
     >
     <meta name="robots" content="noindex,nofollow">
     <title>商品後台管理</title>
@@ -18,12 +18,11 @@
           <p class="eyebrow">LOCAL ADMIN</p>
           <h1>商品後台管理</h1>
           <p class="hero-copy">
-            這個後台只在你的電腦上執行，不會公開到 GitHub Pages。你可以在這裡修改網站資訊、商品內容與圖片，
-            並在儲存後同步推送到前台。
+            在這裡修改網站標題、商品內容、分類結構、圖片與社群連結，儲存後即可同步到前台與 GitHub Pages。
           </p>
         </div>
         <div class="hero-actions">
-          <a class="button button-secondary" href="../">開啟前台</a>
+          <a class="button button-secondary" href="../">查看前台</a>
         </div>
       </header>
 
@@ -35,8 +34,7 @@
               <h2>GitHub 發布設定</h2>
             </div>
             <p class="panel-note">
-              你可以在本機使用加密保存的 Token 發布，也可以臨時在這個頁面貼上 Token。
-              完成設定後，儲存內容即可同步更新前台。
+              這裡可設定 Repo 位置與發布備註；若本機已保存 Token，系統會優先使用本機安全憑證。
             </p>
           </div>
 
@@ -59,18 +57,18 @@
             </label>
             <label class="checkbox span-2">
               <input id="remember-token" name="rememberToken" type="checkbox">
-              記住這台電腦使用的 Token
+              記住 GitHub Token
             </label>
             <label class="span-2">
-              發布註記
-              <input id="publish-note" name="publishNote" autocomplete="off" placeholder="例如：更新商品資訊、上架新圖片">
+              發布備註
+              <input id="publish-note" name="publishNote" autocomplete="off" placeholder="例如：更新商品圖片與分類">
             </label>
           </form>
 
           <div class="action-row">
             <button id="test-connection" class="button button-secondary" type="button">測試連線</button>
             <button id="load-repo" class="button button-secondary" type="button">載入 GitHub 資料</button>
-            <button id="publish-all" class="button button-primary" type="button">發布到前台</button>
+            <button id="publish-all" class="button button-primary" type="button">發布到網頁</button>
             <button id="download-backup" class="button button-ghost" type="button">下載 JSON 備份</button>
             <label class="button button-ghost file-button">
               匯入 JSON 備份
@@ -79,7 +77,7 @@
           </div>
 
           <div class="status-card">
-            <p class="status-title">狀態紀錄</p>
+            <p class="status-title">最新狀態</p>
             <div id="status-log" class="status-log" aria-live="polite"></div>
             <p id="pages-link" class="pages-link"></p>
           </div>
@@ -89,21 +87,21 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">SITE META</p>
-              <h2>網站基本資料</h2>
+              <h2>網站內容設定</h2>
             </div>
             <p class="panel-note">
-              這裡的內容會顯示在前台首頁，例如網站名稱、簡介、聯絡方式與幣別。
+              可在此調整網站標題、品牌說明、聯絡資訊與社群連結；填好後前台 Footer 會自動帶出 icon。
             </p>
           </div>
 
           <form id="site-form" class="grid-form">
             <label class="span-2">
-              網站名稱
-              <input id="site-title-input" name="title" placeholder="甜時烘焙 / Tinnsi Bakery">
+              網站標題
+              <input id="site-title-input" name="title" placeholder="例如：Tinnsi Bakery">
             </label>
             <label class="span-2">
-              網站簡介
-              <textarea id="site-tagline-input" name="tagline" rows="3" placeholder="前台首頁顯示的簡短介紹"></textarea>
+              網站說明
+              <textarea id="site-tagline-input" name="tagline" rows="3" placeholder="輸入品牌介紹、主打品項或首頁文案"></textarea>
             </label>
             <label>
               聯絡 Email
@@ -112,6 +110,18 @@
             <label>
               幣別
               <input id="site-currency-input" name="currency" placeholder="TWD">
+            </label>
+            <label>
+              Instagram
+              <input id="site-instagram-input" name="instagram" placeholder="https://www.instagram.com/your-brand/">
+            </label>
+            <label>
+              Facebook
+              <input id="site-facebook-input" name="facebook" placeholder="https://www.facebook.com/your-brand/">
+            </label>
+            <label class="span-2">
+              LINE
+              <input id="site-line-input" name="line" placeholder="https://line.me/ti/p/your-brand">
             </label>
           </form>
 
@@ -122,7 +132,7 @@
                 <h2>版型配色</h2>
               </div>
               <p class="panel-note">
-                每個主要區塊都有自己的色盤，調整後會跟網站資料一起儲存與發布。
+                每個區塊都有自己的色盤，調整後發布即可同步套用到前台。
               </p>
             </div>
             <div id="theme-editor" class="theme-editor"></div>
@@ -133,10 +143,10 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">PRODUCTS</p>
-              <h2>商品資料</h2>
+              <h2>商品管理</h2>
             </div>
             <p class="panel-note">
-              左側可切換商品，右側可編輯商品欄位。修改後會先存到本機，再依設定同步發布到前台。
+              商品可設定大分類與子分類，前台左側選單會依此自動產生收合層級。
             </p>
           </div>
 
@@ -144,7 +154,7 @@
             <button id="add-product" class="button button-secondary" type="button">新增商品</button>
             <button id="duplicate-product" class="button button-secondary" type="button">複製商品</button>
             <button id="delete-product" class="button button-ghost" type="button">刪除商品</button>
-            <span id="dirty-indicator" class="dirty-indicator">目前沒有尚未同步的變更</span>
+            <span id="dirty-indicator" class="dirty-indicator">目前沒有未發布變更</span>
           </div>
 
           <div class="product-layout">
@@ -163,16 +173,20 @@
                   <input id="product-name" name="name" placeholder="商品名稱">
                 </label>
                 <label class="span-2">
-                  副標題
-                  <input id="product-subtitle" name="subtitle" placeholder="可填入節慶、口味或特色摘要">
+                  商品副標
+                  <input id="product-subtitle" name="subtitle" placeholder="簡短說明商品特色或賣點">
                 </label>
                 <label class="span-2">
                   商品摘要
-                  <textarea id="product-summary" name="summary" rows="3" placeholder="前台卡片與詳情頁顯示的摘要"></textarea>
+                  <textarea id="product-summary" name="summary" rows="3" placeholder="用一段話描述商品重點"></textarea>
                 </label>
                 <label>
-                  商品分類
+                  大分類
                   <input id="product-category" name="category" placeholder="例如：禮盒 / 常溫蛋糕 / 餅乾">
+                </label>
+                <label>
+                  子分類
+                  <input id="product-subcategory" name="subcategory" placeholder="例如：生乳捲 / 禮盒 / 手工餅乾">
                 </label>
                 <label>
                   SKU
@@ -196,10 +210,10 @@
                 </label>
                 <label class="checkbox">
                   <input id="product-highlight" name="highlight" type="checkbox">
-                  這是首頁精選商品
+                  設為首頁焦點商品
                 </label>
                 <label class="span-2">
-                  Google 表單連結
+                  Google 表單或下單連結
                   <input id="product-order-link" name="orderLink" placeholder="https://docs.google.com/forms/...">
                 </label>
                 <label class="span-2">
@@ -208,11 +222,11 @@
                 </label>
                 <label class="span-2">
                   標籤
-                  <textarea id="product-badges" name="badges" rows="3" placeholder="每行一個標籤，例如：人氣、限量、節慶"></textarea>
+                  <textarea id="product-badges" name="badges" rows="3" placeholder="每行一個標籤，例如：新品 / 限量 / 可預購"></textarea>
                 </label>
                 <label class="span-2">
-                  圖片清單
-                  <textarea id="product-gallery" name="gallery" rows="4" placeholder="每行一個圖片路徑"></textarea>
+                  圖庫路徑
+                  <textarea id="product-gallery" name="gallery" rows="4" placeholder="每行一張圖片路徑"></textarea>
                 </label>
               </form>
 
@@ -220,8 +234,8 @@
                 <div class="sections-header">
                   <div>
                     <p class="eyebrow">SECTIONS</p>
-                    <h3>商品段落內容</h3>
-                    <p class="panel-note">可新增多個段落，顯示在前台商品詳情頁。</p>
+                    <h3>商品介紹段落</h3>
+                    <p class="panel-note">可補充規格、口味、保存方式或購買說明。</p>
                   </div>
                   <button id="add-section" class="button button-secondary" type="button">新增段落</button>
                 </div>

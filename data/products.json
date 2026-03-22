@@ -4,6 +4,11 @@
                  "tagline":  "稿啥",
                  "contactEmail":  "hello@tinnsi.example",
                  "currency":  "TWD",
+                 "socialLinks":  {
+                                     "instagram":  "https://www.instagram.com/",
+                                     "facebook":  "https://www.facebook.com/",
+                                     "line":  "https://line.me/"
+                                 },
                  "theme":  {
                                "pageStart":  "#C39341",
                                "pageEnd":  "#F5E7D8",
@@ -32,6 +37,7 @@
                          "price":  1280,
                          "currency":  "TWD",
                          "category":  "Travel",
+                         "subcategory":  "Bottle",
                          "sku":  "AU-TH-001",
                          "status":  "active",
                          "highlight":  true,
@@ -70,6 +76,7 @@
                          "price":  2380,
                          "currency":  "TWD",
                          "category":  "Living",
+                         "subcategory":  "Lamp",
                          "sku":  "LN-LP-014",
                          "status":  "active",
                          "highlight":  false,
