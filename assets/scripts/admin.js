@@ -623,7 +623,7 @@ function scheduleDesktopSync({ force = false } = {}) {
     window.clearTimeout(desktopSyncTimerId);
   }
 
-  const delay = force ? 200 : 800;
+  const delay = force ? 250 : 1600;
   desktopSyncTimerId = window.setTimeout(async () => {
     desktopSyncTimerId = 0;
 
@@ -1371,7 +1371,7 @@ function startDesktopSnapshotLoop() {
   }
 
   DESKTOP_BRIDGE.snapshotLoopId = window.setInterval(() => {
-    if (!DESKTOP_BRIDGE.available || busy || !hasDirtyChanges()) {
+    if (!DESKTOP_BRIDGE.available || busy || !hasDirtyChanges() || desktopSyncTimerId || isEditorFieldFocused()) {
       return;
     }
 
@@ -1381,6 +1381,35 @@ function startDesktopSnapshotLoop() {
 
 function hasDirtyChanges() {
   return state.siteDirty || state.products.some((product) => product._dirty);
+}
+
+function isEditorFieldFocused() {
+  const active = document.activeElement;
+  return active instanceof HTMLInputElement
+    || active instanceof HTMLTextAreaElement
+    || active instanceof HTMLSelectElement
+    || Boolean(active?.isContentEditable);
+}
+
+function applyPublishedSnapshot(payload) {
+  const currentProductId = state.products[state.currentIndex]?.id || "";
+  applyData(payload);
+
+  if (currentProductId) {
+    const nextIndex = state.products.findIndex((product) => product.id === currentProductId);
+    if (nextIndex >= 0) {
+      state.currentIndex = nextIndex;
+    }
+  }
+
+  renderProductList();
+  renderDirtyIndicator();
+  renderPagesLink();
+
+  if (!isEditorFieldFocused()) {
+    renderSiteForm();
+    renderCurrentProduct();
+  }
 }
 
 function buildCatalogPayload(stampUpdates) {
@@ -1485,8 +1514,7 @@ async function syncDesktopSnapshot(force = false, { silentSuccess = false } = {}
   DESKTOP_BRIDGE.snapshotSignature = signature;
 
   if (result?.published) {
-    applyData(payload);
-    renderEverything();
+    applyPublishedSnapshot(payload);
     DESKTOP_BRIDGE.snapshotSignature = JSON.stringify(payload);
     if (!silentSuccess) {
       appendStatus("本機自動推送已完成，前台內容已更新。");
