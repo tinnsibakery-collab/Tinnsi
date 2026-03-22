@@ -103,7 +103,8 @@ code {
 .panel-heading h2,
 .auth-section h2,
 .sections-card h3,
-.upload-card h3 {
+.upload-card h3,
+.theme-group h3 {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
   letter-spacing: -0.02em;
@@ -164,6 +165,20 @@ code {
   justify-content: space-between;
   align-items: end;
   gap: 24px;
+}
+
+.panel.is-collapsible .panel-heading {
+  align-items: start;
+}
+
+.panel-toggle {
+  flex: 0 0 auto;
+}
+
+.panel-inline-summary {
+  margin: 12px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .panel-heading h2 {
@@ -279,6 +294,92 @@ code {
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(47, 92, 85, 0.12);
+}
+
+.theme-panel {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(47, 92, 85, 0.12);
+}
+
+.theme-editor {
+  display: grid;
+  gap: 18px;
+}
+
+.theme-group {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(47, 92, 85, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.theme-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 18px;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.theme-field {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(47, 92, 85, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.theme-field-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.theme-field-copy strong {
+  color: var(--accent-deep);
+}
+
+.theme-field-copy small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.theme-field-controls {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.theme-color {
+  width: 68px;
+  min-width: 68px;
+  height: 48px;
+  padding: 4px;
+  border: 1px solid rgba(47, 92, 85, 0.16);
+  border-radius: 14px;
+  background: #fffdfa;
+  cursor: pointer;
+}
+
+.theme-hex {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.theme-hex.is-invalid {
+  border-color: rgba(161, 70, 43, 0.55);
+  box-shadow: 0 0 0 3px rgba(161, 70, 43, 0.12);
 }
 
 .meta-grid {
@@ -476,6 +577,10 @@ code {
   background: rgba(255, 255, 255, 0.76);
 }
 
+.gallery-card-link {
+  display: block;
+}
+
 .gallery-card img {
   width: 100%;
   aspect-ratio: 1;
@@ -490,6 +595,12 @@ code {
   word-break: break-all;
 }
 
+.gallery-path {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+}
+
 .gallery-remove {
   width: calc(100% - 16px);
   margin: 0 8px 10px;
@@ -498,6 +609,49 @@ code {
 .dirty-indicator {
   color: var(--muted);
   font-size: 0.92rem;
+}
+
+.publish-shortcut {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  display: grid;
+  gap: 10px;
+  width: min(320px, calc(100vw - 32px));
+  padding: 18px;
+  border: 1px solid rgba(47, 92, 85, 0.18);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.42), transparent 36%),
+    linear-gradient(145deg, rgba(22, 55, 48, 0.96), rgba(47, 92, 85, 0.92));
+  box-shadow: 0 24px 40px rgba(22, 55, 48, 0.28);
+}
+
+.publish-shortcut.is-dirty {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.48), transparent 34%),
+    linear-gradient(145deg, rgba(161, 70, 43, 0.96), rgba(47, 92, 85, 0.94));
+}
+
+.publish-shortcut-note {
+  margin: 0;
+  color: rgba(255, 250, 245, 0.9);
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+.publish-shortcut-button {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 12px 26px rgba(10, 24, 21, 0.24);
+}
+
+.publish-shortcut-button:disabled {
+  cursor: wait;
+  opacity: 0.82;
 }
 
 .is-error-text {
@@ -529,7 +683,8 @@ code {
   .action-row,
   .product-actions,
   .upload-controls,
-  .sections-header {
+  .sections-header,
+  .theme-group-header {
     flex-direction: column;
     align-items: stretch;
   }
@@ -542,6 +697,10 @@ code {
     grid-template-columns: 1fr;
   }
 
+  .theme-grid {
+    grid-template-columns: 1fr;
+  }
+
   .span-2 {
     grid-column: span 1;
   }
@@ -549,5 +708,21 @@ code {
   .button,
   .file-pick {
     width: 100%;
+  }
+
+  .publish-shortcut {
+    right: 10px;
+    bottom: 10px;
+    width: calc(100vw - 20px);
+    padding: 14px;
+  }
+
+  .theme-field-controls {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .theme-color {
+    width: 56px;
+    min-width: 56px;
   }
 }

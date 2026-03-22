@@ -1,3 +1,21 @@
+const DEFAULT_THEME = {
+  pageStart: "#F8F4ED",
+  pageEnd: "#F5E7D8",
+  pageGlow: "#BC5F2F",
+  heroStart: "#FFFDF9",
+  heroEnd: "#F3DEC7",
+  heroPanel: "#FFF8F1",
+  catalogPanel: "#FFF9F3",
+  detailPanel: "#FFF7F0",
+  card: "#FFFFFF",
+  accent: "#BC5F2F",
+  accentDeep: "#7F3710",
+  accentText: "#FFF8F1",
+  ink: "#1D1A17",
+  muted: "#6F655A",
+  line: "#D4C2B3"
+};
+
 const state = {
   allProducts: [],
   activeProducts: [],
@@ -32,7 +50,8 @@ const elements = {
 
 bootstrap().catch((error) => {
   console.error(error);
-  elements.feedback.textContent = "產品資料載入失敗，請確認 data/products.json 是否存在。";
+  elements.feedback.textContent = "商品資料載入失敗，請稍後再試。";
+  elements.feedback.classList.add("is-error");
 });
 
 async function bootstrap() {
@@ -69,23 +88,28 @@ async function bootstrap() {
   window.addEventListener("hashchange", () => {
     const nextId = decodeURIComponent(window.location.hash.replace("#", ""));
     const product = state.activeProducts.find((item) => item.id === nextId);
-    if (product) {
-      state.selectedId = product.id;
-      renderCatalog();
-      renderDetail(product);
+    if (!product) {
+      return;
     }
+
+    state.selectedId = product.id;
+    renderCatalog();
+    renderDetail(product);
   });
 }
 
 function applySiteMeta(site = {}) {
-  const title = site.title || "Tinnsi 產品型錄";
+  const title = site.title || "Tinnsi Bakery";
+  const tagline = site.tagline || "用溫柔的選品和甜點靈感，整理出適合送禮與日常的生活提案。";
+  const contact = site.contactEmail || "hello@tinnsi.example";
+
   state.siteCurrency = site.currency || "TWD";
   document.title = title;
+  applySiteTheme(normalizeTheme(site.theme));
+
   elements.siteTitle.textContent = title;
-  elements.siteTagline.textContent = site.tagline || "讓產品照片、簡短介紹與訂購動線成為畫面的主角。";
-  elements.siteContact.textContent = site.contactEmail
-    ? `聯絡信箱：${site.contactEmail}`
-    : "如需合作或客製化，請在商品訂購單中留下需求。";
+  elements.siteTagline.textContent = tagline;
+  elements.siteContact.textContent = `聯絡我們：${contact}`;
   elements.activeCount.textContent = String(state.activeProducts.length);
   elements.lastUpdated.textContent = formatDate(site.updatedAt || latestProductUpdate(state.allProducts));
 }
@@ -115,7 +139,7 @@ function renderCatalog() {
       !state.searchTerm ||
       [product.name, product.subtitle, product.category, product.sku]
         .filter(Boolean)
-        .some((value) => value.toLowerCase().includes(state.searchTerm));
+        .some((value) => String(value).toLowerCase().includes(state.searchTerm));
 
     return categoryMatches && searchMatches;
   });
@@ -123,12 +147,14 @@ function renderCatalog() {
   elements.grid.innerHTML = "";
   if (!filtered.length) {
     elements.feedback.textContent = "目前沒有符合條件的商品。";
+    elements.feedback.classList.remove("is-error");
     elements.detailEmpty.hidden = false;
     elements.detailArticle.hidden = true;
     return;
   }
 
-  elements.feedback.textContent = `共顯示 ${filtered.length} 項商品`;
+  elements.feedback.textContent = `找到 ${filtered.length} 項商品`;
+  elements.feedback.classList.remove("is-error");
 
   filtered.forEach((product) => {
     const card = document.createElement("article");
@@ -151,11 +177,11 @@ function renderCatalog() {
         <span class="product-sku">${escapeHtml(product.sku || "")}</span>
       </div>
       <div class="product-card-actions">
-        <button class="button button-secondary product-card-detail" type="button">查看內容</button>
+        <button class="button button-secondary product-card-detail" type="button">查看詳情</button>
         ${
           orderLink
-            ? `<a class="button button-primary product-card-order" href="${escapeAttribute(orderLink)}" target="_blank" rel="noreferrer">填寫訂購單</a>`
-            : `<button class="button button-disabled product-card-order" type="button" disabled>尚未設定訂購單</button>`
+            ? `<a class="button button-primary product-card-order" href="${escapeAttribute(orderLink)}" target="_blank" rel="noreferrer">前往下單</a>`
+            : `<button class="button button-disabled product-card-order" type="button" disabled>尚未開放下單</button>`
         }
       </div>
     `;
@@ -182,14 +208,12 @@ function renderCatalog() {
       }
     });
 
-    const detailButton = card.querySelector(".product-card-detail");
-    detailButton?.addEventListener("click", (event) => {
+    card.querySelector(".product-card-detail")?.addEventListener("click", (event) => {
       event.stopPropagation();
       handleSelect();
     });
 
-    const orderButton = card.querySelector(".product-card-order");
-    orderButton?.addEventListener("click", (event) => {
+    card.querySelector(".product-card-order")?.addEventListener("click", (event) => {
       event.stopPropagation();
     });
 
@@ -213,20 +237,20 @@ function renderDetail(product) {
   elements.detailImage.src = product.cover || "";
   elements.detailImage.alt = product.name || "";
   elements.detailCategory.textContent = product.category || "未分類";
-  elements.detailName.textContent = product.name || "未命名產品";
+  elements.detailName.textContent = product.name || "未命名商品";
   elements.detailPrice.textContent = formatPrice(product.price, product.currency || state.siteCurrency);
   elements.detailSubtitle.textContent = product.subtitle || "";
   elements.detailSummary.textContent = product.summary || "";
 
   if (product.orderLink?.trim()) {
     elements.detailOrderLink.href = product.orderLink.trim();
-    elements.detailOrderLink.textContent = "填寫訂購單";
+    elements.detailOrderLink.textContent = "前往下單";
     elements.detailOrderLink.classList.remove("button-disabled");
     elements.detailOrderLink.setAttribute("aria-disabled", "false");
     elements.detailOrderLink.removeAttribute("tabindex");
   } else {
     elements.detailOrderLink.removeAttribute("href");
-    elements.detailOrderLink.textContent = "尚未設定訂購單";
+    elements.detailOrderLink.textContent = "尚未開放下單";
     elements.detailOrderLink.classList.add("button-disabled");
     elements.detailOrderLink.setAttribute("aria-disabled", "true");
     elements.detailOrderLink.setAttribute("tabindex", "-1");
@@ -260,8 +284,8 @@ function renderAccordions(product) {
   if (!sections.length) {
     elements.detailSections.innerHTML = `
       <details class="accordion-item" open>
-        <summary>更多資訊</summary>
-        <div class="accordion-content">此商品目前尚未設定折頁內容，可在本機後台新增。</div>
+        <summary>商品介紹</summary>
+        <div class="accordion-content">目前還沒有更多介紹內容，之後可在後台補上。</div>
       </details>
     `;
     return;
@@ -279,6 +303,77 @@ function renderAccordions(product) {
     `;
     elements.detailSections.append(details);
   });
+}
+
+function applySiteTheme(theme) {
+  const root = document.documentElement;
+  const values = {
+    "--page-bg-start": theme.pageStart,
+    "--page-bg-end": theme.pageEnd,
+    "--page-bg-glow": theme.pageGlow,
+    "--hero-start": theme.heroStart,
+    "--hero-end": theme.heroEnd,
+    "--hero-panel": theme.heroPanel,
+    "--catalog-panel": theme.catalogPanel,
+    "--detail-panel": theme.detailPanel,
+    "--card": theme.card,
+    "--accent": theme.accent,
+    "--accent-deep": theme.accentDeep,
+    "--accent-text": theme.accentText,
+    "--ink": theme.ink,
+    "--muted": theme.muted,
+    "--line-color": theme.line,
+    "--line": withAlpha(theme.line, 0.44),
+    "--line-strong": withAlpha(theme.line, 0.72),
+    "--accent-08": withAlpha(theme.accent, 0.08),
+    "--accent-10": withAlpha(theme.accent, 0.1),
+    "--accent-12": withAlpha(theme.accent, 0.12),
+    "--accent-14": withAlpha(theme.accent, 0.14),
+    "--accent-16": withAlpha(theme.accent, 0.16),
+    "--accent-20": withAlpha(theme.accent, 0.2),
+    "--accent-28": withAlpha(theme.accent, 0.28),
+    "--accent-deep-08": withAlpha(theme.accentDeep, 0.08),
+    "--accent-deep-10": withAlpha(theme.accentDeep, 0.1),
+    "--accent-deep-12": withAlpha(theme.accentDeep, 0.12),
+    "--accent-deep-18": withAlpha(theme.accentDeep, 0.18),
+    "--card-shadow": `0 20px 40px ${withAlpha(theme.accentDeep, 0.14)}`,
+    "--shadow": `0 24px 60px ${withAlpha(theme.accentDeep, 0.16)}`
+  };
+
+  Object.entries(values).forEach(([key, value]) => {
+    root.style.setProperty(key, value);
+  });
+}
+
+function normalizeTheme(theme = {}) {
+  return Object.fromEntries(
+    Object.entries(DEFAULT_THEME).map(([key, fallback]) => [key, normalizeHexColor(theme[key], fallback)])
+  );
+}
+
+function normalizeHexColor(value, fallback) {
+  const input = String(value || "").trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(input)) {
+    return input.toUpperCase();
+  }
+  if (/^[0-9a-fA-F]{6}$/.test(input)) {
+    return `#${input.toUpperCase()}`;
+  }
+  return fallback;
+}
+
+function withAlpha(hex, alpha) {
+  const [red, green, blue] = hexToRgb(hex);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+function hexToRgb(hex) {
+  const normalized = normalizeHexColor(hex, "#000000").replace("#", "");
+  return [
+    Number.parseInt(normalized.slice(0, 2), 16),
+    Number.parseInt(normalized.slice(2, 4), 16),
+    Number.parseInt(normalized.slice(4, 6), 16)
+  ];
 }
 
 function formatSectionContent(content) {
@@ -299,7 +394,7 @@ function latestProductUpdate(products) {
 
 function formatPrice(value, currency = "TWD") {
   if (typeof value !== "number" || Number.isNaN(value)) {
-    return "價格待洽";
+    return "價格未定";
   }
 
   try {
@@ -314,7 +409,7 @@ function formatPrice(value, currency = "TWD") {
 
 function formatDate(value) {
   if (!value) {
-    return "尚未設定";
+    return "尚未更新";
   }
 
   const date = new Date(value);

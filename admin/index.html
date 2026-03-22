@@ -3,9 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="本機商品後台，可直接編輯產品與發佈到 GitHub Pages。">
+    <meta
+      name="description"
+      content="商品資料與圖片只在這台電腦的本機後台維護，儲存後可同步推送到 GitHub Pages 前台。"
+    >
     <meta name="robots" content="noindex,nofollow">
-    <title>Tinnsi 本機後台</title>
+    <title>商品後台管理</title>
     <link rel="stylesheet" href="../assets/styles/admin.css">
   </head>
   <body>
@@ -13,11 +16,14 @@
       <header class="admin-hero">
         <div>
           <p class="eyebrow">LOCAL ADMIN</p>
-          <h1>商品內容後台</h1>
-          <p class="hero-copy">這個後台只給你在本機使用。你可以在這裡新增不限數量的商品、上傳圖片、編輯折頁與訂購連結，最後按下按鈕發佈到 GitHub，讓公開靜態網站同步更新。</p>
+          <h1>商品後台管理</h1>
+          <p class="hero-copy">
+            這個後台只在你的電腦上執行，不會公開到 GitHub Pages。你可以在這裡修改網站資訊、商品內容與圖片，
+            並在儲存後同步推送到前台。
+          </p>
         </div>
         <div class="hero-actions">
-          <a class="button button-secondary" href="../">回前台網站</a>
+          <a class="button button-secondary" href="../">開啟前台</a>
         </div>
       </header>
 
@@ -26,15 +32,18 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">PUBLISH</p>
-              <h2>GitHub 連線</h2>
+              <h2>GitHub 發布設定</h2>
             </div>
-            <p class="panel-note">建議使用 Fine-grained PAT，權限至少要有 Contents: Read and write。</p>
+            <p class="panel-note">
+              你可以在本機使用加密保存的 Token 發布，也可以臨時在這個頁面貼上 Token。
+              完成設定後，儲存內容即可同步更新前台。
+            </p>
           </div>
 
           <form id="github-form" class="grid-form">
             <label>
-              GitHub Owner
-              <input id="github-owner" name="owner" autocomplete="off" placeholder="whalechao">
+              GitHub 帳號
+              <input id="github-owner" name="owner" autocomplete="off" placeholder="tinnsibakery-collab">
             </label>
             <label>
               Repository
@@ -45,23 +54,23 @@
               <input id="github-branch" name="branch" autocomplete="off" placeholder="main" value="main">
             </label>
             <label class="span-2">
-              Personal Access Token
+              GitHub Personal Access Token
               <input id="github-token" name="token" type="password" autocomplete="off" placeholder="github_pat_...">
             </label>
             <label class="checkbox span-2">
               <input id="remember-token" name="rememberToken" type="checkbox">
-              在這台裝置記住 Token
+              記住這台電腦使用的 Token
             </label>
             <label class="span-2">
-              這次更新說明
-              <input id="publish-note" name="publishNote" autocomplete="off" placeholder="例如：新增三項產品、更新圖片與折頁">
+              發布註記
+              <input id="publish-note" name="publishNote" autocomplete="off" placeholder="例如：更新商品資訊、上架新圖片">
             </label>
           </form>
 
           <div class="action-row">
             <button id="test-connection" class="button button-secondary" type="button">測試連線</button>
-            <button id="load-repo" class="button button-secondary" type="button">從 GitHub 載入</button>
-            <button id="publish-all" class="button button-primary" type="button">發佈到 GitHub</button>
+            <button id="load-repo" class="button button-secondary" type="button">載入 GitHub 資料</button>
+            <button id="publish-all" class="button button-primary" type="button">發布到前台</button>
             <button id="download-backup" class="button button-ghost" type="button">下載 JSON 備份</button>
             <label class="button button-ghost file-button">
               匯入 JSON 備份
@@ -80,45 +89,62 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">SITE META</p>
-              <h2>網站資訊</h2>
+              <h2>網站基本資料</h2>
             </div>
-            <p class="panel-note">這些欄位會同步到前台首頁標題、描述與聯絡方式。</p>
+            <p class="panel-note">
+              這裡的內容會顯示在前台首頁，例如網站名稱、簡介、聯絡方式與幣別。
+            </p>
           </div>
 
           <form id="site-form" class="grid-form">
             <label class="span-2">
-              網站標題
-              <input id="site-title-input" name="title" placeholder="品牌名稱 / 型錄名稱">
+              網站名稱
+              <input id="site-title-input" name="title" placeholder="甜時烘焙 / Tinnsi Bakery">
             </label>
             <label class="span-2">
-              網站描述
-              <textarea id="site-tagline-input" name="tagline" rows="3" placeholder="首頁主視覺描述"></textarea>
+              網站簡介
+              <textarea id="site-tagline-input" name="tagline" rows="3" placeholder="前台首頁顯示的簡短介紹"></textarea>
             </label>
             <label>
-              聯絡信箱
+              聯絡 Email
               <input id="site-contact-input" name="contactEmail" placeholder="hello@example.com">
             </label>
             <label>
-              預設幣別
+              幣別
               <input id="site-currency-input" name="currency" placeholder="TWD">
             </label>
           </form>
+
+          <section class="theme-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">THEME</p>
+                <h2>版型配色</h2>
+              </div>
+              <p class="panel-note">
+                每個主要區塊都有自己的色盤，調整後會跟網站資料一起儲存與發布。
+              </p>
+            </div>
+            <div id="theme-editor" class="theme-editor"></div>
+          </section>
         </section>
 
         <section class="panel stack product-panel">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">PRODUCTS</p>
-              <h2>商品編輯</h2>
+              <h2>商品資料</h2>
             </div>
-            <p class="panel-note">商品數量不限，前台會以照片、簡短介紹與「填寫訂購單」為主，其餘資訊都來自你在後台設定的折頁 sections。</p>
+            <p class="panel-note">
+              左側可切換商品，右側可編輯商品欄位。修改後會先存到本機，再依設定同步發布到前台。
+            </p>
           </div>
 
           <div class="product-actions">
             <button id="add-product" class="button button-secondary" type="button">新增商品</button>
             <button id="duplicate-product" class="button button-secondary" type="button">複製商品</button>
             <button id="delete-product" class="button button-ghost" type="button">刪除商品</button>
-            <span id="dirty-indicator" class="dirty-indicator">目前沒有未發佈變更</span>
+            <span id="dirty-indicator" class="dirty-indicator">目前沒有尚未同步的變更</span>
           </div>
 
           <div class="product-layout">
@@ -138,15 +164,15 @@
                 </label>
                 <label class="span-2">
                   副標題
-                  <input id="product-subtitle" name="subtitle" placeholder="短句、副標或賣點">
+                  <input id="product-subtitle" name="subtitle" placeholder="可填入節慶、口味或特色摘要">
                 </label>
                 <label class="span-2">
-                  簡短介紹
-                  <textarea id="product-summary" name="summary" rows="3" placeholder="前台主要會顯示這段介紹"></textarea>
+                  商品摘要
+                  <textarea id="product-summary" name="summary" rows="3" placeholder="前台卡片與詳情頁顯示的摘要"></textarea>
                 </label>
                 <label>
-                  分類
-                  <input id="product-category" name="category" placeholder="例如：Dessert / Living / Travel">
+                  商品分類
+                  <input id="product-category" name="category" placeholder="例如：禮盒 / 常溫蛋糕 / 餅乾">
                 </label>
                 <label>
                   SKU
@@ -170,7 +196,7 @@
                 </label>
                 <label class="checkbox">
                   <input id="product-highlight" name="highlight" type="checkbox">
-                  設為主打商品
+                  這是首頁精選商品
                 </label>
                 <label class="span-2">
                   Google 表單連結
@@ -182,11 +208,11 @@
                 </label>
                 <label class="span-2">
                   標籤
-                  <textarea id="product-badges" name="badges" rows="3" placeholder="每行一個，例如：新品"></textarea>
+                  <textarea id="product-badges" name="badges" rows="3" placeholder="每行一個標籤，例如：人氣、限量、節慶"></textarea>
                 </label>
                 <label class="span-2">
-                  圖庫圖片路徑
-                  <textarea id="product-gallery" name="gallery" rows="4" placeholder="每行一張圖片路徑"></textarea>
+                  圖片清單
+                  <textarea id="product-gallery" name="gallery" rows="4" placeholder="每行一個圖片路徑"></textarea>
                 </label>
               </form>
 
@@ -194,10 +220,10 @@
                 <div class="sections-header">
                   <div>
                     <p class="eyebrow">SECTIONS</p>
-                    <h3>折頁內容</h3>
-                    <p class="panel-note">這裡的標題與內容會直接顯示在前台的可展開折頁。</p>
+                    <h3>商品段落內容</h3>
+                    <p class="panel-note">可新增多個段落，顯示在前台商品詳情頁。</p>
                   </div>
-                  <button id="add-section" class="button button-secondary" type="button">新增折頁</button>
+                  <button id="add-section" class="button button-secondary" type="button">新增段落</button>
                 </div>
                 <div id="sections-editor" class="sections-editor"></div>
               </div>
@@ -205,8 +231,10 @@
               <div class="upload-card">
                 <div>
                   <p class="eyebrow">IMAGES</p>
-                  <h3>上傳商品照片</h3>
-                  <p class="panel-note">圖片會直接上傳到 GitHub Repo 的 <code>assets/products/商品ID/</code> 目錄。</p>
+                  <h3>圖片上傳</h3>
+                  <p class="panel-note">
+                    圖片會上傳到 GitHub Repo 的 <code>assets/products/商品ID/</code> 目錄，並同步到前台。
+                  </p>
                 </div>
                 <div class="upload-controls">
                   <label class="file-pick">
@@ -215,9 +243,9 @@
                   </label>
                   <label class="checkbox">
                     <input id="set-cover-on-upload" type="checkbox" checked>
-                    第一張同步設為封面
+                    第一張自動設為封面
                   </label>
-                  <button id="upload-images" class="button button-secondary" type="button">上傳到 GitHub</button>
+                  <button id="upload-images" class="button button-secondary" type="button">上傳圖片</button>
                 </div>
                 <div id="gallery-preview" class="gallery-preview"></div>
               </div>
