@@ -572,10 +572,21 @@ input {
   cursor: pointer;
 }
 
+.gallery-thumb.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-20);
+  background: var(--accent-08);
+}
+
 .gallery-thumb img {
   width: 100%;
   aspect-ratio: 98 / 64;
   object-fit: cover;
+}
+
+.gallery-thumb:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .detail-gallery:empty {

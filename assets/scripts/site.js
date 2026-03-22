@@ -75,7 +75,8 @@ const state = {
   category: "",
   subcategory: "",
   isCategoryDrawerOpen: false,
-  isDetailDrawerOpen: false
+  isDetailDrawerOpen: false,
+  detailImagePath: ""
 };
 
 const compactLayoutQuery = window.matchMedia("(max-width: 980px)");
@@ -639,6 +640,8 @@ function renderDetail(product) {
   }
 
   state.selectedId = product.id;
+  const galleryImages = getUniqueGalleryImages(product);
+  state.detailImagePath = galleryImages[0] || "";
 
   if (elements.detailEmpty) {
     elements.detailEmpty.hidden = true;
@@ -647,7 +650,7 @@ function renderDetail(product) {
     elements.detailArticle.hidden = false;
   }
   if (elements.detailImage) {
-    elements.detailImage.src = asText(product.cover);
+    elements.detailImage.src = state.detailImagePath;
     elements.detailImage.alt = asText(product.name);
   }
   if (elements.detailCategory) {
@@ -693,23 +696,37 @@ function renderGallery(product) {
   }
 
   elements.detailGallery.innerHTML = "";
-  const gallery = [product.cover, ...(Array.isArray(product.gallery) ? product.gallery : [])]
-    .filter(Boolean)
-    .map((item) => asText(item));
-  const uniqueGallery = [...new Set(gallery)];
+  const uniqueGallery = getUniqueGalleryImages(product);
 
   uniqueGallery.forEach((imagePath) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "gallery-thumb";
+    button.className = `gallery-thumb${state.detailImagePath === imagePath ? " is-active" : ""}`;
+    button.setAttribute("aria-pressed", String(state.detailImagePath === imagePath));
     button.innerHTML = `<img src="${escapeHtml(imagePath)}" alt="${escapeHtml(asText(product.name))}">`;
     button.addEventListener("click", () => {
+      state.detailImagePath = imagePath;
       if (elements.detailImage) {
         elements.detailImage.src = imagePath;
+        elements.detailImage.alt = asText(product.name);
       }
+      elements.detailGallery
+        ?.querySelectorAll(".gallery-thumb")
+        .forEach((thumb) => {
+          const isActive = thumb === button;
+          thumb.classList.toggle("is-active", isActive);
+          thumb.setAttribute("aria-pressed", String(isActive));
+        });
     });
     elements.detailGallery.append(button);
   });
+}
+
+function getUniqueGalleryImages(product) {
+  const gallery = [product.cover, ...(Array.isArray(product.gallery) ? product.gallery : [])]
+    .filter(Boolean)
+    .map((item) => asText(item));
+  return [...new Set(gallery)];
 }
 
 function renderAccordions(product) {
