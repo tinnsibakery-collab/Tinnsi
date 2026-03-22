@@ -27,12 +27,12 @@ const state = {
 
 const elements = {
   hero: document.querySelector(".hero"),
-  heroPanel: document.querySelector(".hero-panel"),
+  heroPanel: null,
   siteTitle: document.querySelector("#site-title"),
   siteTagline: document.querySelector("#site-tagline"),
   siteContact: document.querySelector("#site-contact"),
-  activeCount: document.querySelector("#active-count"),
-  lastUpdated: document.querySelector("#last-updated"),
+  activeCount: null,
+  lastUpdated: null,
   feedback: document.querySelector("#catalog-feedback"),
   grid: document.querySelector("#product-grid"),
   categoryFilters: document.querySelector("#category-filters"),
@@ -103,11 +103,43 @@ async function bootstrap() {
 }
 
 function applyRuntimeVisibility() {
-  const hideOperationalMeta = !isLocalRuntime();
-  if (elements.heroPanel) {
-    elements.heroPanel.hidden = hideOperationalMeta;
+  if (isLocalRuntime()) {
+    ensureOperationalPanel();
+    elements.hero?.classList.remove("hero-compact");
+    return;
   }
-  elements.hero?.classList.toggle("hero-compact", hideOperationalMeta);
+
+  if (elements.heroPanel) {
+    elements.heroPanel.remove();
+    elements.heroPanel = null;
+    elements.activeCount = null;
+    elements.lastUpdated = null;
+  }
+  elements.hero?.classList.add("hero-compact");
+}
+
+function ensureOperationalPanel() {
+  if (elements.heroPanel || !elements.hero) {
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.className = "hero-panel";
+  panel.innerHTML = `
+    <div class="hero-stat">
+      <span class="hero-stat-label">上架商品</span>
+      <strong id="active-count">0</strong>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-label">最新更新</span>
+      <strong id="last-updated">尚未更新</strong>
+    </div>
+    <p class="hero-note">網站內容來自 <code>data/products.json</code>，本機後台發布後 GitHub Pages 會自動同步更新。</p>
+  `;
+  elements.hero.append(panel);
+  elements.heroPanel = panel;
+  elements.activeCount = panel.querySelector("#active-count");
+  elements.lastUpdated = panel.querySelector("#last-updated");
 }
 
 function isLocalRuntime() {
@@ -116,7 +148,7 @@ function isLocalRuntime() {
 
 function applySiteMeta(site = {}) {
   const title = site.title || "Tinnsi Bakery";
-  const tagline = site.tagline || "用溫柔的選品和甜點靈感，整理出適合送禮與日常的生活提案。";
+  const tagline = site.tagline || "讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。";
   const contact = site.contactEmail || "hello@tinnsi.example";
 
   state.siteCurrency = site.currency || "TWD";
@@ -126,8 +158,12 @@ function applySiteMeta(site = {}) {
   elements.siteTitle.textContent = title;
   elements.siteTagline.textContent = tagline;
   elements.siteContact.textContent = `聯絡我們：${contact}`;
-  elements.activeCount.textContent = String(state.activeProducts.length);
-  elements.lastUpdated.textContent = formatDate(site.updatedAt || latestProductUpdate(state.allProducts));
+  if (elements.activeCount) {
+    elements.activeCount.textContent = String(state.activeProducts.length);
+  }
+  if (elements.lastUpdated) {
+    elements.lastUpdated.textContent = formatDate(site.updatedAt || latestProductUpdate(state.allProducts));
+  }
 }
 
 function renderFilters() {
