@@ -5,7 +5,7 @@
                  "contactEmail":  "hello@tinnsi.example",
                  "currency":  "TWD",
                  "theme":  {
-                               "pageStart":  "#F8F4ED",
+                               "pageStart":  "#C39341",
                                "pageEnd":  "#F5E7D8",
                                "pageGlow":  "#BC5F2F",
                                "heroStart":  "#FFFDF9",
@@ -21,7 +21,7 @@
                                "muted":  "#6F655A",
                                "line":  "#D4C2B3"
                            },
-                 "updatedAt":  "2026-03-22T13:03:55.299Z"
+                 "updatedAt":  "2026-03-22T13:04:00.735Z"
              },
     "products":  [
                      {
@@ -60,7 +60,7 @@
                                               "content":  "點擊「填寫訂購單」後可前往 Google 表單留下需求。"
                                           }
                                       ],
-                         "updatedAt":  "2026-03-22T12:50:23.505Z"
+                         "updatedAt":  "2026-03-22T13:04:00.735Z"
                      },
                      {
                          "id":  "linen-lamp",
