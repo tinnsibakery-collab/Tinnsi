@@ -11,7 +11,7 @@
                                  },
                  "theme":  {
                                "pageStart":  "#C39341",
-                               "pageEnd":  "#F5E7D8",
+                               "pageEnd":  "#FFDAB3",
                                "pageGlow":  "#BC5F2F",
                                "heroStart":  "#FFFDF9",
                                "heroEnd":  "#F3DEC7",
@@ -26,7 +26,7 @@
                                "muted":  "#6F655A",
                                "line":  "#D4C2B3"
                            },
-                 "updatedAt":  "2026-03-22T15:28:04.696Z"
+                 "updatedAt":  "2026-03-22T15:31:14.562Z"
              },
     "products":  [
                      {
@@ -66,7 +66,7 @@
                                               "content":  "點擊「填寫訂購單」後可前往 Google 表單留下需求。"
                                           }
                                       ],
-                         "updatedAt":  "2026-03-22T13:04:00.735Z"
+                         "updatedAt":  "2026-03-22T15:31:14.562Z"
                      },
                      {
                          "id":  "linen-lamp",
