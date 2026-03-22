@@ -1,7 +1,7 @@
 {
     "site":  {
-                 "title":  "甜時工作市",
-                 "tagline":  "稿啥",
+                 "title":  "甜時工作室",
+                 "tagline":  "",
                  "contactEmail":  "hello@tinnsi.example",
                  "currency":  "TWD",
                  "socialLinks":  {
@@ -26,7 +26,7 @@
                                "muted":  "#6F655A",
                                "line":  "#D4C2B3"
                            },
-                 "updatedAt":  "2026-03-22T15:27:52.962Z"
+                 "updatedAt":  "2026-03-22T15:28:04.696Z"
              },
     "products":  [
                      {
