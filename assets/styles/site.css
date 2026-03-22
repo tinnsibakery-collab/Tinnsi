@@ -173,10 +173,15 @@ code {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 98px;
+  max-width: 100%;
   min-height: 48px;
-  padding: 0 18px;
+  padding: 8px 10px;
   border-radius: 999px;
   border: 1px solid transparent;
+  text-align: center;
+  line-height: 1.25;
+  white-space: normal;
   transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
@@ -434,7 +439,7 @@ code {
 
 .product-card-actions .button,
 .detail-actions .button {
-  flex: 1 1 140px;
+  flex: 0 0 98px;
 }
 
 .product-price {
@@ -590,6 +595,21 @@ code {
     padding: 18px;
   }
 
+  .hero::after {
+    inset: 10px;
+    border-radius: 16px;
+  }
+
+  .hero h1 {
+    max-width: 100%;
+    font-size: clamp(2.2rem, 10.5vw, 3rem);
+    line-height: 1.02;
+  }
+
+  .hero-tagline {
+    max-width: 100%;
+  }
+
   .hero-actions,
   .section-heading,
   .detail-header,
@@ -600,7 +620,7 @@ code {
   }
 
   .button {
-    width: 100%;
+    width: 98px;
   }
 
   .product-card-actions {
