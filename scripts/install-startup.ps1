@@ -7,15 +7,23 @@ $ErrorActionPreference = "Stop"
 
 $startupPath = [Environment]::GetFolderPath("Startup")
 $launcherPath = Join-Path $PSScriptRoot "launch-admin.ps1"
-$startupScriptPath = Join-Path $startupPath "Tinnsi Admin Startup.vbs"
+$startupWrapperPath = Join-Path $startupPath "Tinnsi Admin Startup.ps1"
+$startupScriptPath = Join-Path $startupPath "Tinnsi Admin Startup.cmd"
+$legacyVbsPath = Join-Path $startupPath "Tinnsi Admin Startup.vbs"
 
-$command = "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File ""$launcherPath"" -Port $Port"
-$escapedCommand = $command.Replace("""", """""")
+if (Test-Path -LiteralPath $legacyVbsPath) {
+  Remove-Item -LiteralPath $legacyVbsPath -Force
+}
 
-$vbsContent = @"
-Set shell = CreateObject("WScript.Shell")
-shell.Run "$escapedCommand", 0, False
+$wrapperContent = @"
+& "$launcherPath" -Port $Port
 "@
 
-Set-Content -LiteralPath $startupScriptPath -Value $vbsContent -Encoding Unicode
+$cmdContent = @"
+@echo off
+start "" powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0Tinnsi Admin Startup.ps1"
+"@
+
+Set-Content -LiteralPath $startupWrapperPath -Value $wrapperContent -Encoding Unicode
+Set-Content -LiteralPath $startupScriptPath -Value $cmdContent -Encoding ASCII
 Write-Host "Startup launcher installed at $startupScriptPath"
