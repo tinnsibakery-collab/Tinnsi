@@ -701,15 +701,15 @@ code {
 .social-links {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .social-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 66px;
+  height: 66px;
   border-radius: 50%;
   border: 1px solid var(--accent-deep-12);
   background: color-mix(in srgb, var(--card) 80%, white 20%);
@@ -724,8 +724,8 @@ code {
 }
 
 .social-link svg {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;

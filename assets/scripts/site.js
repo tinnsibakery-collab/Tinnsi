@@ -44,14 +44,12 @@ const SOCIAL_META = {
       </svg>
     `
   },
-  line: {
-    label: "LINE",
+  email: {
+    label: "E-MAIL",
     icon: `
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6 6.5C6 5.12 7.12 4 8.5 4h7C16.88 4 18 5.12 18 6.5v6C18 13.88 16.88 15 15.5 15H11l-3 2.4V15H8.5C7.12 15 6 13.88 6 12.5Z"></path>
-        <path d="M9.5 8.4v3.15"></path>
-        <path d="M12 8.4v3.15"></path>
-        <path d="M14.5 8.4h-1.7v3.15h1.7"></path>
+        <rect x="3.5" y="6" width="17" height="12" rx="2"></rect>
+        <path d="M4.5 7.5 12 13l7.5-5.5"></path>
       </svg>
     `
   }
@@ -211,15 +209,18 @@ function applySiteMeta(site) {
     elements.siteContact.textContent = `聯絡我們：${contact}`;
   }
 
-  renderSocialLinks(site.socialLinks);
+  renderSocialLinks(site.socialLinks, contact);
 }
 
-function renderSocialLinks(socialLinks = {}) {
+function renderSocialLinks(socialLinks = {}, contactEmail = "") {
   if (!elements.socialLinks) {
     return;
   }
 
-  const links = normalizeSocialLinks(socialLinks);
+  const links = {
+    ...normalizeSocialLinks(socialLinks),
+    email: contactEmail ? `mailto:${contactEmail}` : ""
+  };
   const availableEntries = Object.entries(SOCIAL_META).filter(([key]) => links[key]);
   elements.socialLinks.innerHTML = "";
 
@@ -232,8 +233,13 @@ function renderSocialLinks(socialLinks = {}) {
     const anchor = document.createElement("a");
     anchor.className = "social-link";
     anchor.href = links[key];
-    anchor.target = "_blank";
-    anchor.rel = "noreferrer";
+    if (links[key].startsWith("mailto:")) {
+      anchor.removeAttribute("target");
+      anchor.removeAttribute("rel");
+    } else {
+      anchor.target = "_blank";
+      anchor.rel = "noreferrer";
+    }
     anchor.setAttribute("aria-label", meta.label);
     anchor.innerHTML = `${meta.icon}<span class="sr-only">${meta.label}</span>`;
     elements.socialLinks.append(anchor);
