@@ -115,6 +115,8 @@ const elements = {
   detailSections: document.querySelector("#detail-sections")
 };
 
+cleanupDuplicateDetailGallery();
+
 bootstrap().catch((error) => {
   console.error(error);
   if (elements.feedback) {
@@ -122,6 +124,13 @@ bootstrap().catch((error) => {
     elements.feedback.classList.add("is-error");
   }
 });
+
+function cleanupDuplicateDetailGallery() {
+  const detailGalleries = [...document.querySelectorAll("#detail-gallery")];
+  detailGalleries.slice(1).forEach((node) => {
+    node.closest("section")?.remove();
+  });
+}
 
 async function bootstrap() {
   bindEvents();

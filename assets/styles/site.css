@@ -555,12 +555,15 @@ input {
 }
 
 .detail-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
 .gallery-thumb {
+  width: 98px;
+  flex: 0 0 98px;
+  min-height: 48px;
   padding: 0;
   border: 1px solid var(--accent-deep-12);
   border-radius: 16px;
@@ -571,8 +574,12 @@ input {
 
 .gallery-thumb img {
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 98 / 64;
   object-fit: cover;
+}
+
+.detail-gallery:empty {
+  display: none;
 }
 
 .accordion-list {
