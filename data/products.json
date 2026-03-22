@@ -1,6 +1,6 @@
 {
     "site":  {
-                 "title":  "Playwright Import 1774180809509-ry64ri",
+                 "title":  "Playwright Import 1774180974239-ykm0bn",
                  "tagline":  "讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。",
                  "contactEmail":  "hello@tinnsi.example",
                  "currency":  "TWD",
@@ -21,7 +21,7 @@
                                "muted":  "#6F655A",
                                "line":  "#D4C2B3"
                            },
-                 "updatedAt":  "2026-03-22T12:00:10.409Z"
+                 "updatedAt":  "2026-03-22T12:02:55.235Z"
              },
     "products":  [
                      {
@@ -59,7 +59,7 @@
                                               "content":  "點擊「填寫訂購單」後可前往 Google 表單留下需求。"
                                           }
                                       ],
-                         "updatedAt":  "2026-03-22T12:00:10.409Z"
+                         "updatedAt":  "2026-03-22T12:02:55.235Z"
                      },
                      {
                          "id":  "linen-lamp",
@@ -94,7 +94,7 @@
                                               "content":  "建議以乾布輕拭，避免長時間潮濕環境。"
                                           }
                                       ],
-                         "updatedAt":  "2026-03-22T12:00:10.409Z"
+                         "updatedAt":  "2026-03-22T12:02:55.235Z"
                      }
                  ]
 }
