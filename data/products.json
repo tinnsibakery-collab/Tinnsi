@@ -1,7 +1,7 @@
 {
     "site":  {
                  "title":  "搞甚麼",
-                 "tagline":  "讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。",
+                 "tagline":  "稿啥",
                  "contactEmail":  "hello@tinnsi.example",
                  "currency":  "TWD",
                  "theme":  {
@@ -21,7 +21,7 @@
                                "muted":  "#6F655A",
                                "line":  "#D4C2B3"
                            },
-                 "updatedAt":  "2026-03-22T13:03:50.062Z"
+                 "updatedAt":  "2026-03-22T13:03:55.299Z"
              },
     "products":  [
                      {
