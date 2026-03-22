@@ -4,9 +4,67 @@
                  "tagline":  "讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。",
                  "contactEmail":  "hello@tinnsi.example",
                  "currency":  "TWD",
-                 "updatedAt":  "2026-03-22T10:28:11.629Z"
+                 "updatedAt":  "2026-03-22T10:33:07.491Z"
              },
     "products":  [
+                     {
+                         "id":  "product-mn1mc3mf",
+                         "name":  "Automation Draft",
+                         "subtitle":  "",
+                         "summary":  "",
+                         "price":  null,
+                         "currency":  "TWD",
+                         "category":  "",
+                         "sku":  "",
+                         "status":  "draft",
+                         "highlight":  false,
+                         "cover":  "",
+                         "gallery":  [
+
+                                     ],
+                         "badges":  [
+
+                                    ],
+                         "orderLink":  "",
+                         "sections":  [
+                                          {
+                                              "title":  "產品介紹",
+                                              "content":  ""
+                                          },
+                                          {
+                                              "title":  "折頁 2",
+                                              "content":  ""
+                                          }
+                                      ],
+                         "updatedAt":  "2026-03-22T10:33:07.491Z"
+                     },
+                     {
+                         "id":  "preview-debug-mn1m6po1",
+                         "name":  "Preview Debug",
+                         "subtitle":  "",
+                         "summary":  "Preview debug summary",
+                         "price":  100,
+                         "currency":  "TWD",
+                         "category":  "Debug",
+                         "sku":  "",
+                         "status":  "active",
+                         "highlight":  false,
+                         "cover":  "assets/products/preview-debug-mn1m6po1/2026-03-22T10-28-54.903Z-mo9jzp-20240104_201820.jpg",
+                         "gallery":  [
+                                         "assets/products/preview-debug-mn1m6po1/2026-03-22T10-28-54.903Z-mo9jzp-20240104_201820.jpg"
+                                     ],
+                         "badges":  [
+
+                                    ],
+                         "orderLink":  "https://docs.google.com/forms/d/e/1FAIpQLScodexPreview/viewform",
+                         "sections":  [
+                                          {
+                                              "title":  "產品介紹",
+                                              "content":  "Preview debug section"
+                                          }
+                                      ],
+                         "updatedAt":  "2026-03-22T10:28:56.716Z"
+                     },
                      {
                          "id":  "desktop-smoke-mn1lz2nq",
                          "name":  "Desktop Smoke Product",
