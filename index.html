@@ -38,6 +38,7 @@
 
       <main class="main-layout" id="catalog">
         <div id="category-backdrop" class="category-backdrop" hidden></div>
+        <div id="detail-backdrop" class="detail-backdrop" hidden></div>
 
         <aside class="category-panel" id="category-panel" aria-labelledby="category-nav-title">
           <div class="category-panel-header">
@@ -75,7 +76,14 @@
           <div id="product-grid" class="product-grid"></div>
         </section>
 
-        <aside class="detail-panel">
+        <aside class="detail-panel" id="detail-panel">
+          <div class="detail-panel-header">
+            <p class="eyebrow">DETAIL</p>
+            <button id="detail-close" class="button button-secondary detail-close" type="button">
+              收合介紹
+            </button>
+          </div>
+
           <div id="detail-empty" class="detail-empty">
             <p class="eyebrow">DETAIL</p>
             <h2>選擇一項商品</h2>

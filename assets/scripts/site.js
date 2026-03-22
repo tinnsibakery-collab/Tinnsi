@@ -74,16 +74,21 @@ const state = {
   searchTerm: "",
   category: "",
   subcategory: "",
-  isCategoryDrawerOpen: false
+  isCategoryDrawerOpen: false,
+  isDetailDrawerOpen: false
 };
 
 const compactLayoutQuery = window.matchMedia("(max-width: 980px)");
+const mobileDetailQuery = window.matchMedia("(max-width: 640px)");
 
 const elements = {
   categoryPanel: document.querySelector("#category-panel"),
   categoryToggle: document.querySelector("#category-toggle"),
   categoryClose: document.querySelector("#category-close"),
   categoryBackdrop: document.querySelector("#category-backdrop"),
+  detailPanel: document.querySelector("#detail-panel"),
+  detailClose: document.querySelector("#detail-close"),
+  detailBackdrop: document.querySelector("#detail-backdrop"),
   categoryNav: document.querySelector("#category-nav"),
   siteTitle: document.querySelector("#site-title"),
   siteTagline: document.querySelector("#site-tagline"),
@@ -121,6 +126,7 @@ bootstrap().catch((error) => {
 async function bootstrap() {
   bindEvents();
   handleLayoutModeChange(compactLayoutQuery);
+  handleDetailLayoutModeChange(mobileDetailQuery);
   subscribeLayoutChange();
 
   const response = await fetch("./data/products.json", { cache: "no-store" });
@@ -161,6 +167,7 @@ async function bootstrap() {
     state.selectedId = product.id;
     renderCatalog();
     renderDetail(product);
+    renderDetailDrawerState();
   });
 }
 
@@ -185,10 +192,26 @@ function bindEvents() {
     renderCategoryDrawerState();
   });
 
+  elements.detailClose?.addEventListener("click", () => {
+    closeDetailDrawer();
+  });
+
+  elements.detailBackdrop?.addEventListener("click", () => {
+    closeDetailDrawer();
+  });
+
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && state.isCategoryDrawerOpen) {
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    if (state.isCategoryDrawerOpen) {
       state.isCategoryDrawerOpen = false;
       renderCategoryDrawerState();
+    }
+
+    if (state.isDetailDrawerOpen) {
+      closeDetailDrawer();
     }
   });
 }
@@ -196,11 +219,14 @@ function bindEvents() {
 function subscribeLayoutChange() {
   if (typeof compactLayoutQuery.addEventListener === "function") {
     compactLayoutQuery.addEventListener("change", handleLayoutModeChange);
-    return;
+  } else if (typeof compactLayoutQuery.addListener === "function") {
+    compactLayoutQuery.addListener(handleLayoutModeChange);
   }
 
-  if (typeof compactLayoutQuery.addListener === "function") {
-    compactLayoutQuery.addListener(handleLayoutModeChange);
+  if (typeof mobileDetailQuery.addEventListener === "function") {
+    mobileDetailQuery.addEventListener("change", handleDetailLayoutModeChange);
+  } else if (typeof mobileDetailQuery.addListener === "function") {
+    mobileDetailQuery.addListener(handleDetailLayoutModeChange);
   }
 }
 
@@ -209,6 +235,13 @@ function handleLayoutModeChange(event) {
     state.isCategoryDrawerOpen = false;
   }
   renderCategoryDrawerState();
+}
+
+function handleDetailLayoutModeChange(event) {
+  if (!event.matches) {
+    state.isDetailDrawerOpen = false;
+  }
+  renderDetailDrawerState();
 }
 
 function renderCategoryDrawerState() {
@@ -227,6 +260,47 @@ function renderCategoryDrawerState() {
   }
   if (elements.categoryClose) {
     elements.categoryClose.hidden = !isCompact;
+  }
+}
+
+function renderDetailDrawerState() {
+  const isMobileDetail = mobileDetailQuery.matches;
+  const isOpen = isMobileDetail ? state.isDetailDrawerOpen : true;
+
+  if (elements.detailPanel) {
+    elements.detailPanel.classList.toggle("is-open", isOpen);
+  }
+  if (elements.detailBackdrop) {
+    elements.detailBackdrop.hidden = !isMobileDetail || !isOpen;
+  }
+  if (elements.detailClose) {
+    elements.detailClose.hidden = !isMobileDetail;
+  }
+}
+
+function closeDetailDrawer() {
+  state.isDetailDrawerOpen = false;
+  renderDetailDrawerState();
+}
+
+function selectProduct(product, { openDetail = false } = {}) {
+  if (!product) {
+    return;
+  }
+
+  state.selectedId = product.id;
+
+  const nextHash = `#${encodeURIComponent(product.id)}`;
+  if (window.location.hash !== nextHash) {
+    window.location.hash = encodeURIComponent(product.id);
+  }
+
+  renderCatalog();
+  renderDetail(product);
+
+  if (mobileDetailQuery.matches) {
+    state.isDetailDrawerOpen = openDetail;
+    renderDetailDrawerState();
   }
 }
 
@@ -461,6 +535,7 @@ function renderCatalog() {
     if (elements.detailArticle) {
       elements.detailArticle.hidden = true;
     }
+    closeDetailDrawer();
     return;
   }
 
@@ -479,11 +554,8 @@ function renderCatalog() {
     card.tabIndex = 0;
 
     const orderLink = asText(product.orderLink).trim();
-    const handleSelect = () => {
-      state.selectedId = product.id;
-      window.location.hash = encodeURIComponent(product.id);
-      renderCatalog();
-      renderDetail(product);
+    const handleSelect = ({ openDetail = false } = {}) => {
+      selectProduct(product, { openDetail });
     };
 
     card.innerHTML = `
@@ -531,7 +603,7 @@ function renderCatalog() {
 
     card.querySelector(".product-card-detail")?.addEventListener("click", (event) => {
       event.stopPropagation();
-      handleSelect();
+      handleSelect({ openDetail: mobileDetailQuery.matches });
     });
 
     card.querySelector(".product-card-order")?.addEventListener("click", (event) => {
@@ -543,6 +615,7 @@ function renderCatalog() {
 
   const selectedProduct = filtered.find((product) => product.id === state.selectedId) || filtered[0];
   renderDetail(selectedProduct);
+  renderDetailDrawerState();
 }
 
 function renderDetail(product) {
