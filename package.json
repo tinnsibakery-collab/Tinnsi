@@ -6,6 +6,11 @@
   "scripts": {
     "build:pages": "node scripts/build-pages.mjs",
     "preview": "node scripts/preview.mjs",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
   }
 }
