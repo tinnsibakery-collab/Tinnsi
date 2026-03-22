@@ -16,23 +16,21 @@ const DEFAULT_THEME = {
   line: "#D4C2B3"
 };
 
+const ALL_CATEGORY = "全部";
+
 const state = {
   allProducts: [],
   activeProducts: [],
   selectedId: "",
   searchTerm: "",
-  category: "全部",
+  category: ALL_CATEGORY,
   siteCurrency: "TWD"
 };
 
 const elements = {
-  hero: document.querySelector(".hero"),
-  heroPanel: null,
   siteTitle: document.querySelector("#site-title"),
   siteTagline: document.querySelector("#site-tagline"),
   siteContact: document.querySelector("#site-contact"),
-  activeCount: null,
-  lastUpdated: null,
   feedback: document.querySelector("#catalog-feedback"),
   grid: document.querySelector("#product-grid"),
   categoryFilters: document.querySelector("#category-filters"),
@@ -57,9 +55,7 @@ bootstrap().catch((error) => {
 });
 
 async function bootstrap() {
-  applyRuntimeVisibility();
-
-  elements.searchInput.addEventListener("input", (event) => {
+  elements.searchInput?.addEventListener("input", (event) => {
     state.searchTerm = event.target.value.trim().toLowerCase();
     renderCatalog();
   });
@@ -71,7 +67,7 @@ async function bootstrap() {
 
   const data = await response.json();
   state.allProducts = Array.isArray(data.products) ? data.products : [];
-  state.activeProducts = state.allProducts.filter((product) => product.status === "active");
+  state.activeProducts = state.allProducts.filter((product) => product?.status === "active");
 
   applySiteMeta(data.site);
   renderFilters();
@@ -80,18 +76,16 @@ async function bootstrap() {
   const initialProduct =
     state.activeProducts.find((product) => product.id === preferredId) ||
     state.activeProducts.find((product) => product.highlight) ||
-    state.activeProducts[0];
+    state.activeProducts[0] ||
+    null;
 
   state.selectedId = initialProduct?.id ?? "";
   renderCatalog();
-
-  if (initialProduct) {
-    renderDetail(initialProduct);
-  }
+  renderDetail(initialProduct);
 
   window.addEventListener("hashchange", () => {
     const nextId = decodeURIComponent(window.location.hash.replace("#", ""));
-    const product = state.activeProducts.find((item) => item.id === nextId);
+    const product = state.activeProducts.find((item) => item.id === nextId) || null;
     if (!product) {
       return;
     }
@@ -102,72 +96,43 @@ async function bootstrap() {
   });
 }
 
-function applyRuntimeVisibility() {
-  if (isLocalRuntime()) {
-    ensureOperationalPanel();
-    elements.hero?.classList.remove("hero-compact");
-    return;
-  }
-
-  if (elements.heroPanel) {
-    elements.heroPanel.remove();
-    elements.heroPanel = null;
-    elements.activeCount = null;
-    elements.lastUpdated = null;
-  }
-  elements.hero?.classList.add("hero-compact");
-}
-
-function ensureOperationalPanel() {
-  if (elements.heroPanel || !elements.hero) {
-    return;
-  }
-
-  const panel = document.createElement("div");
-  panel.className = "hero-panel";
-  panel.innerHTML = `
-    <div class="hero-stat">
-      <span class="hero-stat-label">上架商品</span>
-      <strong id="active-count">0</strong>
-    </div>
-    <div class="hero-stat">
-      <span class="hero-stat-label">最新更新</span>
-      <strong id="last-updated">尚未更新</strong>
-    </div>
-    <p class="hero-note">網站內容來自 <code>data/products.json</code>，本機後台發布後 GitHub Pages 會自動同步更新。</p>
-  `;
-  elements.hero.append(panel);
-  elements.heroPanel = panel;
-  elements.activeCount = panel.querySelector("#active-count");
-  elements.lastUpdated = panel.querySelector("#last-updated");
-}
-
-function isLocalRuntime() {
-  return ["127.0.0.1", "localhost", "::1"].includes(window.location.hostname);
-}
-
 function applySiteMeta(site = {}) {
-  const title = site.title || "Tinnsi Bakery";
-  const tagline = site.tagline || "讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。";
-  const contact = site.contactEmail || "hello@tinnsi.example";
+  const title = asText(site.title, "Tinnsi Bakery");
+  const tagline = asText(
+    site.tagline,
+    "以溫暖選物與細膩陳列，整理出適合送禮與日常收藏的靜態型錄。"
+  );
+  const contact = asText(site.contactEmail, "hello@tinnsi.example");
 
-  state.siteCurrency = site.currency || "TWD";
+  state.siteCurrency = asText(site.currency, "TWD");
   document.title = title;
   applySiteTheme(normalizeTheme(site.theme));
 
-  elements.siteTitle.textContent = title;
-  elements.siteTagline.textContent = tagline;
-  elements.siteContact.textContent = `聯絡我們：${contact}`;
-  if (elements.activeCount) {
-    elements.activeCount.textContent = String(state.activeProducts.length);
+  if (elements.siteTitle) {
+    elements.siteTitle.textContent = title;
   }
-  if (elements.lastUpdated) {
-    elements.lastUpdated.textContent = formatDate(site.updatedAt || latestProductUpdate(state.allProducts));
+  if (elements.siteTagline) {
+    elements.siteTagline.textContent = tagline;
+  }
+  if (elements.siteContact) {
+    elements.siteContact.textContent = `聯絡我們：${contact}`;
   }
 }
 
 function renderFilters() {
-  const categories = ["全部", ...new Set(state.activeProducts.map((product) => product.category).filter(Boolean))];
+  if (!elements.categoryFilters) {
+    return;
+  }
+
+  const categories = [
+    ALL_CATEGORY,
+    ...new Set(
+      state.activeProducts
+        .map((product) => asText(product.category))
+        .filter(Boolean)
+    )
+  ];
+
   elements.categoryFilters.innerHTML = "";
 
   categories.forEach((category) => {
@@ -186,7 +151,8 @@ function renderFilters() {
 
 function renderCatalog() {
   const filtered = state.activeProducts.filter((product) => {
-    const categoryMatches = state.category === "全部" || product.category === state.category;
+    const categoryMatches =
+      state.category === ALL_CATEGORY || asText(product.category) === state.category;
     const searchMatches =
       !state.searchTerm ||
       [product.name, product.subtitle, product.category, product.sku]
@@ -196,44 +162,58 @@ function renderCatalog() {
     return categoryMatches && searchMatches;
   });
 
-  elements.grid.innerHTML = "";
+  if (elements.grid) {
+    elements.grid.innerHTML = "";
+  }
+
   if (!filtered.length) {
-    elements.feedback.textContent = "目前沒有符合條件的商品。";
-    elements.feedback.classList.remove("is-error");
-    elements.detailEmpty.hidden = false;
-    elements.detailArticle.hidden = true;
+    if (elements.feedback) {
+      elements.feedback.textContent = "目前沒有符合條件的商品。";
+      elements.feedback.classList.remove("is-error");
+    }
+    if (elements.detailEmpty) {
+      elements.detailEmpty.hidden = false;
+    }
+    if (elements.detailArticle) {
+      elements.detailArticle.hidden = true;
+    }
     return;
   }
 
-  elements.feedback.textContent = `找到 ${filtered.length} 項商品`;
-  elements.feedback.classList.remove("is-error");
+  if (elements.feedback) {
+    elements.feedback.textContent = `找到 ${filtered.length} 項商品`;
+    elements.feedback.classList.remove("is-error");
+  }
 
   filtered.forEach((product) => {
     const card = document.createElement("article");
     card.className = `product-card${product.id === state.selectedId ? " is-active" : ""}`;
     card.tabIndex = 0;
 
-    const orderLink = product.orderLink?.trim();
+    const orderLink = asText(product.orderLink).trim();
     card.innerHTML = `
       <div class="product-card-image">
-        <img src="${escapeHtml(product.cover || "")}" alt="${escapeHtml(product.name || "")}">
+        <img src="${escapeHtml(asText(product.cover))}" alt="${escapeHtml(asText(product.name))}">
       </div>
       <div class="product-card-tags">
-        ${(product.badges || []).slice(0, 2).map((badge) => `<span class="tag">${escapeHtml(badge)}</span>`).join("")}
+        ${(Array.isArray(product.badges) ? product.badges : [])
+          .slice(0, 2)
+          .map((badge) => `<span class="tag">${escapeHtml(asText(badge))}</span>`)
+          .join("")}
       </div>
-      <h3>${escapeHtml(product.name || "")}</h3>
-      <p class="product-card-subtitle">${escapeHtml(product.subtitle || "")}</p>
-      <p>${escapeHtml(product.summary || "")}</p>
+      <h3>${escapeHtml(asText(product.name))}</h3>
+      <p class="product-card-subtitle">${escapeHtml(asText(product.subtitle))}</p>
+      <p>${escapeHtml(asText(product.summary))}</p>
       <div class="product-card-footer">
         <span class="product-price">${formatPrice(product.price, product.currency || state.siteCurrency)}</span>
-        <span class="product-sku">${escapeHtml(product.sku || "")}</span>
+        <span class="product-sku">${escapeHtml(asText(product.sku))}</span>
       </div>
       <div class="product-card-actions">
         <button class="button button-secondary product-card-detail" type="button">查看詳情</button>
         ${
           orderLink
             ? `<a class="button button-primary product-card-order" href="${escapeAttribute(orderLink)}" target="_blank" rel="noreferrer">前往下單</a>`
-            : `<button class="button button-disabled product-card-order" type="button" disabled>尚未開放下單</button>`
+            : `<button class="button button-disabled product-card-order" type="button" disabled>尚未設定下單</button>`
         }
       </div>
     `;
@@ -269,43 +249,67 @@ function renderCatalog() {
       event.stopPropagation();
     });
 
-    elements.grid.append(card);
+    elements.grid?.append(card);
   });
 
-  const selectedProduct = filtered.find((product) => product.id === state.selectedId);
-  renderDetail(selectedProduct || filtered[0]);
+  const selectedProduct = filtered.find((product) => product.id === state.selectedId) || filtered[0];
+  renderDetail(selectedProduct);
 }
 
 function renderDetail(product) {
   if (!product) {
-    elements.detailEmpty.hidden = false;
-    elements.detailArticle.hidden = true;
+    if (elements.detailEmpty) {
+      elements.detailEmpty.hidden = false;
+    }
+    if (elements.detailArticle) {
+      elements.detailArticle.hidden = true;
+    }
     return;
   }
 
   state.selectedId = product.id;
-  elements.detailEmpty.hidden = true;
-  elements.detailArticle.hidden = false;
-  elements.detailImage.src = product.cover || "";
-  elements.detailImage.alt = product.name || "";
-  elements.detailCategory.textContent = product.category || "未分類";
-  elements.detailName.textContent = product.name || "未命名商品";
-  elements.detailPrice.textContent = formatPrice(product.price, product.currency || state.siteCurrency);
-  elements.detailSubtitle.textContent = product.subtitle || "";
-  elements.detailSummary.textContent = product.summary || "";
 
-  if (product.orderLink?.trim()) {
-    elements.detailOrderLink.href = product.orderLink.trim();
-    elements.detailOrderLink.textContent = "前往下單";
-    elements.detailOrderLink.classList.remove("button-disabled");
-    elements.detailOrderLink.setAttribute("aria-disabled", "false");
-    elements.detailOrderLink.removeAttribute("tabindex");
-  } else {
-    elements.detailOrderLink.removeAttribute("href");
-    elements.detailOrderLink.textContent = "尚未開放下單";
-    elements.detailOrderLink.classList.add("button-disabled");
-    elements.detailOrderLink.setAttribute("aria-disabled", "true");
-    elements.detailOrderLink.setAttribute("tabindex", "-1");
+  if (elements.detailEmpty) {
+    elements.detailEmpty.hidden = true;
+  }
+  if (elements.detailArticle) {
+    elements.detailArticle.hidden = false;
+  }
+  if (elements.detailImage) {
+    elements.detailImage.src = asText(product.cover);
+    elements.detailImage.alt = asText(product.name);
+  }
+  if (elements.detailCategory) {
+    elements.detailCategory.textContent = asText(product.category, "未分類");
+  }
+  if (elements.detailName) {
+    elements.detailName.textContent = asText(product.name, "未命名商品");
+  }
+  if (elements.detailPrice) {
+    elements.detailPrice.textContent = formatPrice(product.price, product.currency || state.siteCurrency);
+  }
+  if (elements.detailSubtitle) {
+    elements.detailSubtitle.textContent = asText(product.subtitle);
+  }
+  if (elements.detailSummary) {
+    elements.detailSummary.textContent = asText(product.summary);
+  }
+
+  const orderLink = asText(product.orderLink).trim();
+  if (elements.detailOrderLink) {
+    if (orderLink) {
+      elements.detailOrderLink.href = orderLink;
+      elements.detailOrderLink.textContent = "前往下單";
+      elements.detailOrderLink.classList.remove("button-disabled");
+      elements.detailOrderLink.setAttribute("aria-disabled", "false");
+      elements.detailOrderLink.removeAttribute("tabindex");
+    } else {
+      elements.detailOrderLink.removeAttribute("href");
+      elements.detailOrderLink.textContent = "尚未設定下單";
+      elements.detailOrderLink.classList.add("button-disabled");
+      elements.detailOrderLink.setAttribute("aria-disabled", "true");
+      elements.detailOrderLink.setAttribute("tabindex", "-1");
+    }
   }
 
   renderGallery(product);
@@ -313,23 +317,35 @@ function renderDetail(product) {
 }
 
 function renderGallery(product) {
+  if (!elements.detailGallery) {
+    return;
+  }
+
   elements.detailGallery.innerHTML = "";
-  const gallery = [product.cover, ...(product.gallery || []).filter(Boolean)].filter(Boolean);
+  const gallery = [product.cover, ...(Array.isArray(product.gallery) ? product.gallery : [])]
+    .filter(Boolean)
+    .map((item) => asText(item));
   const uniqueGallery = [...new Set(gallery)];
 
   uniqueGallery.forEach((imagePath) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "gallery-thumb";
-    button.innerHTML = `<img src="${escapeHtml(imagePath)}" alt="${escapeHtml(product.name || "")}">`;
+    button.innerHTML = `<img src="${escapeHtml(imagePath)}" alt="${escapeHtml(asText(product.name))}">`;
     button.addEventListener("click", () => {
-      elements.detailImage.src = imagePath;
+      if (elements.detailImage) {
+        elements.detailImage.src = imagePath;
+      }
     });
     elements.detailGallery.append(button);
   });
 }
 
 function renderAccordions(product) {
+  if (!elements.detailSections) {
+    return;
+  }
+
   elements.detailSections.innerHTML = "";
   const sections = Array.isArray(product.sections) ? product.sections.filter(isFilledSection) : [];
 
@@ -337,7 +353,7 @@ function renderAccordions(product) {
     elements.detailSections.innerHTML = `
       <details class="accordion-item" open>
         <summary>商品介紹</summary>
-        <div class="accordion-content">目前還沒有更多介紹內容，之後可在後台補上。</div>
+        <div class="accordion-content">目前尚未提供更多說明。</div>
       </details>
     `;
     return;
@@ -350,7 +366,7 @@ function renderAccordions(product) {
       details.open = true;
     }
     details.innerHTML = `
-      <summary>${escapeHtml(section.title)}</summary>
+      <summary>${escapeHtml(asText(section.title))}</summary>
       <div class="accordion-content">${formatSectionContent(section.content)}</div>
     `;
     elements.detailSections.append(details);
@@ -429,19 +445,16 @@ function hexToRgb(hex) {
 }
 
 function formatSectionContent(content) {
-  return escapeHtml(content || "").replaceAll("\n", "<br>");
+  return escapeHtml(asText(content)).replaceAll("\n", "<br>");
 }
 
 function isFilledSection(section) {
-  return section && typeof section.title === "string" && typeof section.content === "string" && (section.title.trim() || section.content.trim());
-}
-
-function latestProductUpdate(products) {
-  return products
-    .map((product) => product.updatedAt)
-    .filter(Boolean)
-    .sort()
-    .at(-1);
+  return (
+    section &&
+    typeof section.title === "string" &&
+    typeof section.content === "string" &&
+    (section.title.trim() || section.content.trim())
+  );
 }
 
 function formatPrice(value, currency = "TWD") {
@@ -459,21 +472,14 @@ function formatPrice(value, currency = "TWD") {
   }
 }
 
-function formatDate(value) {
-  if (!value) {
-    return "尚未更新";
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
+function asText(value, fallback = "") {
+  if (typeof value === "string") {
     return value;
   }
-
-  return new Intl.DateTimeFormat("zh-TW", {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  }).format(date);
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  return String(value);
 }
 
 function escapeHtml(value) {
