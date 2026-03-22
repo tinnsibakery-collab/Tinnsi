@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Tinnsi Bakery 商品型錄，提供分類瀏覽、商品詳情與可快速更新的品牌展示頁。"
+      content="Tinnsi Bakery 商品型錄，提供分類瀏覽、商品詳情、品牌展示與社群導流。"
     >
     <title>Tinnsi Bakery</title>
     <link rel="stylesheet" href="./assets/styles/site.css">
@@ -13,33 +13,40 @@
   <body>
     <div class="site-shell">
       <header class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">CURATED COLLECTION</p>
-          <h1 id="site-title">Tinnsi Bakery</h1>
-          <p id="site-tagline" class="hero-tagline">
-            以溫暖色調與清楚的商品分類，整理出適合展示與分享的前台型錄。
-          </p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="#catalog">立即看產品</a>
+        <section class="hero-main">
+          <div class="hero-brand">
+            <img id="site-logo" class="site-logo" src="" alt="" hidden>
+            <div class="hero-title-block">
+              <h1 id="site-title">Tinnsi Bakery</h1>
+              <p id="site-tagline" class="hero-tagline">
+                以溫暖色調與清楚分類整理出適合展示與分享的商品型錄。
+              </p>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <article class="hero-feature-card">
+          <div class="hero-feature-media">
+            <img id="hero-feature-image" src="" alt="">
+          </div>
+          <div class="hero-feature-copy">
+            <h2 id="hero-feature-title">本週精選</h2>
+            <p id="hero-feature-text">在這裡放一段簡短介紹，展示一張照片與品牌主打內容。</p>
+          </div>
+        </article>
       </header>
 
       <main class="main-layout" id="catalog">
-        <aside class="category-panel" id="category-panel">
+        <div id="category-backdrop" class="category-backdrop" hidden></div>
+
+        <aside class="category-panel" id="category-panel" aria-labelledby="category-nav-title">
           <div class="category-panel-header">
             <div>
               <p class="eyebrow">CATEGORIES</p>
               <h2 id="category-nav-title">商品分類</h2>
             </div>
-            <button
-              id="category-toggle"
-              class="sidebar-toggle"
-              type="button"
-              aria-expanded="false"
-              aria-controls="category-nav"
-            >
-              展開分類
+            <button id="category-close" class="button button-secondary category-close" type="button">
+              關閉分類
             </button>
           </div>
           <nav id="category-nav" class="category-nav" aria-labelledby="category-nav-title"></nav>
@@ -51,6 +58,9 @@
               <p class="eyebrow">PRODUCTS</p>
               <h2>商品總覽</h2>
             </div>
+            <button id="category-toggle" class="button button-secondary toolbar-toggle" type="button">
+              商品分類
+            </button>
           </div>
 
           <div class="toolbar">
@@ -69,7 +79,7 @@
           <div id="detail-empty" class="detail-empty">
             <p class="eyebrow">DETAIL</p>
             <h2>選擇一項商品</h2>
-            <p>從左側分類或商品卡中挑選一項，即可查看圖片、規格與下單連結。</p>
+            <p>從分類抽屜或商品卡片挑選一項，即可查看圖片、規格與下單連結。</p>
           </div>
 
           <article id="product-detail" class="product-detail" hidden>

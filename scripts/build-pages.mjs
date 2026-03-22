@@ -15,6 +15,7 @@ async function main() {
   await copyFile("assets/scripts/site.js");
   await copyDirectory("assets/placeholders");
   await copyDirectoryIfExists("assets/products");
+  await copyDirectoryIfExists("assets/site");
 }
 
 async function copyFile(relativePath) {

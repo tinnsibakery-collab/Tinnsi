@@ -67,6 +67,67 @@ const THEME_GROUPS = [
 
 const THEME_KEYS = THEME_GROUPS.flatMap((group) => group.fields.map((field) => field.key));
 
+resetThemeConfig();
+
+function resetThemeConfig() {
+  Object.keys(DEFAULT_THEME).forEach((key) => {
+    delete DEFAULT_THEME[key];
+  });
+  Object.assign(DEFAULT_THEME, {
+    pageBg: "#F8F4ED",
+    heroBg: "#F5E7D8",
+    featureBg: "#FFF7F0",
+    sidebarBg: "#FFF9F3",
+    catalogBg: "#FFF9F3",
+    detailBg: "#FFF7F0",
+    cardBg: "#FFFFFF",
+    accent: "#BC5F2F",
+    accentDeep: "#7F3710",
+    accentText: "#FFF8F1",
+    ink: "#1D1A17",
+    muted: "#6F655A",
+    line: "#D4C2B3"
+  });
+
+  THEME_GROUPS.length = 0;
+  THEME_GROUPS.push(
+    {
+      title: "頁面區塊",
+      note: "每個區塊改成單一底色，不再使用漸層。",
+      fields: [
+        { key: "pageBg", label: "整頁背景", description: "網站最外層底色" },
+        { key: "heroBg", label: "頂部區塊", description: "主標題與品牌資訊區塊底色" },
+        { key: "featureBg", label: "頂部照片卡", description: "單張照片與短文區塊底色" }
+      ]
+    },
+    {
+      title: "內容版面",
+      note: "分類、商品列表、詳情與商品卡可各自設定單色。",
+      fields: [
+        { key: "sidebarBg", label: "分類側欄", description: "桌機側欄與手機抽屜底色" },
+        { key: "catalogBg", label: "商品列表", description: "商品列表區塊底色" },
+        { key: "detailBg", label: "商品詳情", description: "商品詳情區塊底色" },
+        { key: "cardBg", label: "商品卡片", description: "商品卡片與小卡片底色" }
+      ]
+    },
+    {
+      title: "按鈕與文字",
+      note: "統一控制重點按鈕、文字與框線色彩。",
+      fields: [
+        { key: "accent", label: "主按鈕", description: "主按鈕與重點色" },
+        { key: "accentDeep", label: "深色點綴", description: "標題、分類與次重點色" },
+        { key: "accentText", label: "主按鈕文字", description: "主按鈕上的文字顏色" },
+        { key: "ink", label: "主要文字", description: "大標與主要內容文字色" },
+        { key: "muted", label: "次要文字", description: "說明文字與輔助資訊色" },
+        { key: "line", label: "框線", description: "邊框與分隔線顏色" }
+      ]
+    }
+  );
+
+  THEME_KEYS.length = 0;
+  THEME_KEYS.push(...THEME_GROUPS.flatMap((group) => group.fields.map((field) => field.key)));
+}
+
 const DEFAULT_SITE = {
   title: "Tinnsi 產品型錄",
   tagline: "用靜態站穩定呈現產品內容，並從本機後台直接發佈到 GitHub。",
@@ -75,8 +136,12 @@ const DEFAULT_SITE = {
   socialLinks: {
     instagram: "",
     facebook: "",
-    line: ""
+    email: ""
   },
+  logoImage: "",
+  heroFeatureImage: "",
+  heroFeatureTitle: "",
+  heroFeatureText: "",
   theme: structuredClone(DEFAULT_THEME),
   updatedAt: ""
 };
@@ -141,7 +206,17 @@ const elements = {
   siteCurrency: document.querySelector("#site-currency-input"),
   siteInstagram: document.querySelector("#site-instagram-input"),
   siteFacebook: document.querySelector("#site-facebook-input"),
-  siteLine: document.querySelector("#site-line-input"),
+  siteSocialEmail: document.querySelector("#site-social-email-input"),
+  siteLogoImage: document.querySelector("#site-logo-image-input"),
+  siteFeatureImage: document.querySelector("#site-feature-image-input"),
+  siteFeatureTitle: document.querySelector("#site-feature-title-input"),
+  siteFeatureText: document.querySelector("#site-feature-text-input"),
+  siteLogoFile: document.querySelector("#site-logo-file"),
+  uploadSiteLogo: document.querySelector("#upload-site-logo"),
+  siteFeatureFile: document.querySelector("#site-feature-file"),
+  uploadSiteFeatureImage: document.querySelector("#upload-site-feature-image"),
+  siteLogoPreview: document.querySelector("#site-logo-preview"),
+  siteFeaturePreview: document.querySelector("#site-feature-preview"),
   themeEditor: document.querySelector("#theme-editor"),
   addProduct: document.querySelector("#add-product"),
   duplicateProduct: document.querySelector("#duplicate-product"),
@@ -225,7 +300,11 @@ function bindEvents() {
     elements.siteCurrency,
     elements.siteInstagram,
     elements.siteFacebook,
-    elements.siteLine
+    elements.siteSocialEmail,
+    elements.siteLogoImage,
+    elements.siteFeatureImage,
+    elements.siteFeatureTitle,
+    elements.siteFeatureText
   ].forEach((field) => {
     field.addEventListener("input", handleSiteInput);
   });
@@ -245,6 +324,8 @@ function bindEvents() {
   elements.deleteProduct.addEventListener("click", deleteCurrentProduct);
   elements.addSection.addEventListener("click", addSection);
   elements.uploadImages.addEventListener("click", uploadSelectedImages);
+  elements.uploadSiteLogo.addEventListener("click", () => uploadSiteAsset("logo"));
+  elements.uploadSiteFeatureImage.addEventListener("click", () => uploadSiteAsset("hero"));
 }
 
 async function loadLocalSeedData() {
@@ -676,11 +757,16 @@ function handleSiteInput() {
     socialLinks: {
       instagram: elements.siteInstagram.value,
       facebook: elements.siteFacebook.value,
-      line: elements.siteLine.value
-    }
+      email: elements.siteSocialEmail.value
+    },
+    logoImage: elements.siteLogoImage.value,
+    heroFeatureImage: elements.siteFeatureImage.value,
+    heroFeatureTitle: elements.siteFeatureTitle.value,
+    heroFeatureText: elements.siteFeatureText.value
   });
   state.siteDirty = true;
   renderDirtyIndicator();
+  renderSiteAssetPreviews();
   scheduleDesktopSync();
 }
 
@@ -692,8 +778,13 @@ function renderSiteForm() {
   elements.siteCurrency.value = state.site.currency;
   elements.siteInstagram.value = state.site.socialLinks.instagram;
   elements.siteFacebook.value = state.site.socialLinks.facebook;
-  elements.siteLine.value = state.site.socialLinks.line;
+  elements.siteSocialEmail.value = state.site.socialLinks.email;
+  elements.siteLogoImage.value = state.site.logoImage;
+  elements.siteFeatureImage.value = state.site.heroFeatureImage;
+  elements.siteFeatureTitle.value = state.site.heroFeatureTitle;
+  elements.siteFeatureText.value = state.site.heroFeatureText;
   renderThemeForm();
+  renderSiteAssetPreviews();
   hydratingSiteForm = false;
 }
 
@@ -858,6 +949,34 @@ function renderGalleryPreview(product) {
   });
 }
 
+function renderSiteAssetPreviews() {
+  renderSiteAssetPreview(elements.siteLogoPreview, state.site.logoImage, "Logo 預覽");
+  renderSiteAssetPreview(elements.siteFeaturePreview, state.site.heroFeatureImage, "頂部照片預覽");
+}
+
+function renderSiteAssetPreview(container, assetPath, altText) {
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = "";
+  if (!assetPath) {
+    container.innerHTML = '<p class="panel-note">尚未設定圖片。</p>';
+    return;
+  }
+
+  const previewUrl = buildPreviewUrl(assetPath);
+  const card = document.createElement("div");
+  card.className = "gallery-card";
+  card.innerHTML = `
+    <a class="gallery-card-link" href="${escapeAttribute(previewUrl)}" target="_blank" rel="noreferrer">
+      <img src="${escapeAttribute(previewUrl)}" alt="${escapeAttribute(altText)}">
+    </a>
+    <p><a class="gallery-path" href="${escapeAttribute(previewUrl)}" target="_blank" rel="noreferrer">${escapeHtml(assetPath)}</a></p>
+  `;
+  container.append(card);
+}
+
 function buildPreviewUrl(imagePath) {
   const value = String(imagePath || "").trim();
   if (!value) {
@@ -922,8 +1041,12 @@ function syncEditorStateBeforeCommit() {
     socialLinks: {
       instagram: elements.siteInstagram.value,
       facebook: elements.siteFacebook.value,
-      line: elements.siteLine.value
-    }
+      email: elements.siteSocialEmail.value
+    },
+    logoImage: elements.siteLogoImage.value,
+    heroFeatureImage: elements.siteFeatureImage.value,
+    heroFeatureTitle: elements.siteFeatureTitle.value,
+    heroFeatureText: elements.siteFeatureText.value
   });
 
   const product = state.products[state.currentIndex];
@@ -1185,6 +1308,69 @@ async function uploadSelectedImages() {
     appendStatus(`已上傳 ${uploadedPaths.length} 張圖片到 GitHub，記得再按一次「發佈到 GitHub」更新商品資料。`);
   } catch (error) {
     appendStatus(`圖片上傳失敗：${error.message}`, true);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function uploadSiteAsset(kind) {
+  if (busy) {
+    return;
+  }
+
+  const isLogo = kind === "logo";
+  const fileInput = isLogo ? elements.siteLogoFile : elements.siteFeatureFile;
+  const pathInput = isLogo ? elements.siteLogoImage : elements.siteFeatureImage;
+  const file = fileInput?.files?.[0];
+
+  if (!file) {
+    appendStatus(`請先選擇${isLogo ? " Logo" : "頂部照片"}檔案。`, true);
+    return;
+  }
+
+  try {
+    setBusy(true);
+    persistSettings();
+    const useDesktopBridge = canUseDesktopGitHub();
+    ensureRepositorySettings({ requireToken: true });
+
+    const targetPath = buildSiteAssetPath(isLogo ? "logo" : "hero", file.name);
+    const base64 = await encodeFileToBase64(file);
+    if (useDesktopBridge) {
+      await syncDesktopSettings(true);
+      await postDesktop("/_desktop/upload-image", {
+        targetPath,
+        base64,
+        message: `chore: upload site asset ${file.name}`
+      });
+    } else {
+      await putRepoFile(targetPath, base64, `chore: upload site asset ${file.name}`);
+    }
+
+    if (isLogo) {
+      state.site.logoImage = targetPath;
+      pathInput.value = targetPath;
+      fileInput.value = "";
+    } else {
+      state.site.heroFeatureImage = targetPath;
+      pathInput.value = targetPath;
+      fileInput.value = "";
+    }
+
+    state.siteDirty = true;
+    renderSiteAssetPreviews();
+    renderDirtyIndicator();
+
+    if (useDesktopBridge) {
+      const snapshotResult = await syncDesktopSnapshot(true, { silentSuccess: true });
+      if (!snapshotResult?.published) {
+        await postDesktop("/_desktop/publish-now", {});
+      }
+    }
+
+    appendStatus(`${isLogo ? "Logo" : "頂部照片"}已上傳並更新路徑。`);
+  } catch (error) {
+    appendStatus(`${isLogo ? "Logo" : "頂部照片"}上傳失敗：${error.message}`, true);
   } finally {
     setBusy(false);
   }
@@ -1602,7 +1788,9 @@ function setBusy(nextBusy) {
     elements.duplicateProduct,
     elements.deleteProduct,
     elements.addSection,
-    elements.uploadImages
+    elements.uploadImages,
+    elements.uploadSiteLogo,
+    elements.uploadSiteFeatureImage
   ].forEach((button) => {
     button.disabled = nextBusy;
   });
@@ -1621,7 +1809,13 @@ function setBusy(nextBusy) {
     elements.siteCurrency,
     elements.siteInstagram,
     elements.siteFacebook,
-    elements.siteLine,
+    elements.siteSocialEmail,
+    elements.siteLogoImage,
+    elements.siteFeatureImage,
+    elements.siteFeatureTitle,
+    elements.siteFeatureText,
+    elements.siteLogoFile,
+    elements.siteFeatureFile,
     elements.imageInput,
     elements.setCoverOnUpload,
     ...(elements.themeEditor ? Array.from(elements.themeEditor.querySelectorAll("input")) : []),
@@ -1637,17 +1831,43 @@ function normalizeSite(site = {}) {
   return {
     ...structuredClone(DEFAULT_SITE),
     ...site,
+    contactEmail: String(site.contactEmail || ""),
+    currency: String(site.currency || DEFAULT_SITE.currency),
+    logoImage: String(site.logoImage || ""),
+    heroFeatureImage: String(site.heroFeatureImage || ""),
+    heroFeatureTitle: String(site.heroFeatureTitle || ""),
+    heroFeatureText: String(site.heroFeatureText || ""),
     socialLinks: {
       ...structuredClone(DEFAULT_SITE.socialLinks),
-      ...(site.socialLinks || {})
+      ...(site.socialLinks || {}),
+      email: String(site.socialLinks?.email || site.contactEmail || "")
     },
     theme: normalizeTheme(site.theme)
   };
 }
 
 function normalizeTheme(theme = {}) {
+  const aliases = {
+    pageBg: ["pageBg", "pageStart", "pageEnd"],
+    heroBg: ["heroBg", "heroStart", "heroEnd"],
+    featureBg: ["featureBg", "heroPanel", "heroEnd"],
+    sidebarBg: ["sidebarBg", "catalogPanel"],
+    catalogBg: ["catalogBg", "catalogPanel"],
+    detailBg: ["detailBg", "detailPanel"],
+    cardBg: ["cardBg", "card"],
+    accent: ["accent"],
+    accentDeep: ["accentDeep"],
+    accentText: ["accentText"],
+    ink: ["ink"],
+    muted: ["muted"],
+    line: ["line"]
+  };
+
   return Object.fromEntries(
-    THEME_KEYS.map((key) => [key, normalizeHexColor(theme[key], DEFAULT_THEME[key])])
+    THEME_KEYS.map((key) => {
+      const sourceKey = aliases[key].find((candidate) => theme[candidate]);
+      return [key, normalizeHexColor(sourceKey ? theme[sourceKey] : "", DEFAULT_THEME[key])];
+    })
   );
 }
 
@@ -1726,6 +1946,14 @@ function buildImagePath(productId, fileName) {
   const timestamp = new Date().toISOString().replaceAll(":", "-");
   const uniqueSuffix = Math.random().toString(36).slice(2, 8);
   return `assets/products/${safeProductId}/${timestamp}-${uniqueSuffix}-${safeName}`;
+}
+
+function buildSiteAssetPath(assetType, fileName) {
+  const safeType = sanitizeSegment(assetType || "site");
+  const safeName = sanitizeFileName(fileName);
+  const timestamp = new Date().toISOString().replaceAll(":", "-");
+  const uniqueSuffix = Math.random().toString(36).slice(2, 8);
+  return `assets/site/${safeType}/${timestamp}-${uniqueSuffix}-${safeName}`;
 }
 
 function sanitizeSegment(value) {

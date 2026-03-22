@@ -1,13 +1,11 @@
 const DEFAULT_THEME = {
-  pageStart: "#F8F4ED",
-  pageEnd: "#F5E7D8",
-  pageGlow: "#BC5F2F",
-  heroStart: "#FFFDF9",
-  heroEnd: "#F3DEC7",
-  heroPanel: "#FFF8F1",
-  catalogPanel: "#FFF9F3",
-  detailPanel: "#FFF7F0",
-  card: "#FFFFFF",
+  pageBg: "#F8F4ED",
+  heroBg: "#F5E7D8",
+  featureBg: "#FFF7F0",
+  sidebarBg: "#FFF9F3",
+  catalogBg: "#FFF9F3",
+  detailBg: "#FFF7F0",
+  cardBg: "#FFFFFF",
   accent: "#BC5F2F",
   accentDeep: "#7F3710",
   accentText: "#FFF8F1",
@@ -19,7 +17,20 @@ const DEFAULT_THEME = {
 const DEFAULT_SOCIAL_LINKS = {
   instagram: "",
   facebook: "",
-  line: ""
+  email: ""
+};
+
+const DEFAULT_SITE = {
+  title: "Tinnsi Bakery",
+  tagline: "以溫暖色調與清楚分類整理出適合展示與分享的商品型錄。",
+  contactEmail: "hello@tinnsi.example",
+  socialLinks: structuredClone(DEFAULT_SOCIAL_LINKS),
+  logoImage: "",
+  heroFeatureImage: "",
+  heroFeatureTitle: "",
+  heroFeatureText: "",
+  currency: "TWD",
+  theme: structuredClone(DEFAULT_THEME)
 };
 
 const ALL_PRODUCTS_LABEL = "全部商品";
@@ -56,21 +67,14 @@ const SOCIAL_META = {
 };
 
 const state = {
-  site: {
-    title: "Tinnsi Bakery",
-    tagline: "以溫暖色調與清楚的商品分類，整理出適合展示與分享的前台型錄。",
-    contactEmail: "hello@tinnsi.example",
-    currency: "TWD",
-    socialLinks: { ...DEFAULT_SOCIAL_LINKS },
-    theme: structuredClone(DEFAULT_THEME)
-  },
+  site: structuredClone(DEFAULT_SITE),
   allProducts: [],
   activeProducts: [],
   selectedId: "",
   searchTerm: "",
   category: "",
   subcategory: "",
-  categoryPanelOpen: false
+  isCategoryDrawerOpen: false
 };
 
 const compactLayoutQuery = window.matchMedia("(max-width: 980px)");
@@ -78,9 +82,15 @@ const compactLayoutQuery = window.matchMedia("(max-width: 980px)");
 const elements = {
   categoryPanel: document.querySelector("#category-panel"),
   categoryToggle: document.querySelector("#category-toggle"),
+  categoryClose: document.querySelector("#category-close"),
+  categoryBackdrop: document.querySelector("#category-backdrop"),
   categoryNav: document.querySelector("#category-nav"),
   siteTitle: document.querySelector("#site-title"),
   siteTagline: document.querySelector("#site-tagline"),
+  siteLogo: document.querySelector("#site-logo"),
+  heroFeatureImage: document.querySelector("#hero-feature-image"),
+  heroFeatureTitle: document.querySelector("#hero-feature-title"),
+  heroFeatureText: document.querySelector("#hero-feature-text"),
   siteContact: document.querySelector("#site-contact"),
   socialLinks: document.querySelector("#site-social-links"),
   feedback: document.querySelector("#catalog-feedback"),
@@ -109,23 +119,9 @@ bootstrap().catch((error) => {
 });
 
 async function bootstrap() {
-  elements.searchInput?.addEventListener("input", (event) => {
-    state.searchTerm = event.target.value.trim().toLowerCase();
-    renderCatalog();
-  });
-
-  elements.categoryToggle?.addEventListener("click", () => {
-    state.categoryPanelOpen = !state.categoryPanelOpen;
-    renderCategoryPanelState();
-  });
-
-  if (typeof compactLayoutQuery.addEventListener === "function") {
-    compactLayoutQuery.addEventListener("change", handleLayoutChange);
-  } else if (typeof compactLayoutQuery.addListener === "function") {
-    compactLayoutQuery.addListener(handleLayoutChange);
-  }
-
-  handleLayoutChange(compactLayoutQuery);
+  bindEvents();
+  handleLayoutModeChange(compactLayoutQuery);
+  subscribeLayoutChange();
 
   const response = await fetch("./data/products.json", { cache: "no-store" });
   if (!response.ok) {
@@ -137,7 +133,7 @@ async function bootstrap() {
   state.allProducts = Array.isArray(data.products) ? data.products.map(normalizeProduct) : [];
   state.activeProducts = state.allProducts.filter((product) => product.status === "active");
 
-  applySiteMeta(state.site);
+  applySiteMeta();
   renderCategoryMenu();
   renderActiveFilters();
 
@@ -149,7 +145,6 @@ async function bootstrap() {
     null;
 
   if (initialProduct) {
-    syncFilterToProduct(initialProduct, { closePanel: false, renderMenu: true });
     state.selectedId = initialProduct.id;
   }
 
@@ -163,53 +158,123 @@ async function bootstrap() {
       return;
     }
 
-    syncFilterToProduct(product, { closePanel: false, renderMenu: true });
     state.selectedId = product.id;
     renderCatalog();
     renderDetail(product);
   });
 }
 
-function handleLayoutChange(event) {
-  state.categoryPanelOpen = !event.matches;
-  renderCategoryPanelState();
+function bindEvents() {
+  elements.searchInput?.addEventListener("input", (event) => {
+    state.searchTerm = event.target.value.trim().toLowerCase();
+    renderCatalog();
+  });
+
+  elements.categoryToggle?.addEventListener("click", () => {
+    state.isCategoryDrawerOpen = true;
+    renderCategoryDrawerState();
+  });
+
+  elements.categoryClose?.addEventListener("click", () => {
+    state.isCategoryDrawerOpen = false;
+    renderCategoryDrawerState();
+  });
+
+  elements.categoryBackdrop?.addEventListener("click", () => {
+    state.isCategoryDrawerOpen = false;
+    renderCategoryDrawerState();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && state.isCategoryDrawerOpen) {
+      state.isCategoryDrawerOpen = false;
+      renderCategoryDrawerState();
+    }
+  });
 }
 
-function renderCategoryPanelState() {
-  if (!elements.categoryPanel || !elements.categoryToggle) {
+function subscribeLayoutChange() {
+  if (typeof compactLayoutQuery.addEventListener === "function") {
+    compactLayoutQuery.addEventListener("change", handleLayoutModeChange);
     return;
   }
 
-  const isCompact = compactLayoutQuery.matches;
-  const isOpen = isCompact ? state.categoryPanelOpen : true;
-
-  elements.categoryPanel.classList.toggle("is-open", isOpen);
-  elements.categoryToggle.setAttribute("aria-expanded", String(isOpen));
-  elements.categoryToggle.textContent = isOpen ? "收合分類" : "展開分類";
+  if (typeof compactLayoutQuery.addListener === "function") {
+    compactLayoutQuery.addListener(handleLayoutModeChange);
+  }
 }
 
-function applySiteMeta(site) {
-  const title = asText(site.title, "Tinnsi Bakery");
-  const tagline = asText(
-    site.tagline,
-    "以溫暖色調與清楚的商品分類，整理出適合展示與分享的前台型錄。"
-  );
-  const contact = asText(site.contactEmail, "hello@tinnsi.example");
+function handleLayoutModeChange(event) {
+  if (!event.matches) {
+    state.isCategoryDrawerOpen = false;
+  }
+  renderCategoryDrawerState();
+}
 
-  document.title = title;
+function renderCategoryDrawerState() {
+  const isCompact = compactLayoutQuery.matches;
+  const isOpen = isCompact ? state.isCategoryDrawerOpen : true;
+
+  if (elements.categoryPanel) {
+    elements.categoryPanel.classList.toggle("is-open", isOpen);
+  }
+  if (elements.categoryBackdrop) {
+    elements.categoryBackdrop.hidden = !isCompact || !isOpen;
+  }
+  if (elements.categoryToggle) {
+    elements.categoryToggle.hidden = !isCompact;
+    elements.categoryToggle.setAttribute("aria-expanded", String(isOpen));
+  }
+  if (elements.categoryClose) {
+    elements.categoryClose.hidden = !isCompact;
+  }
+}
+
+function applySiteMeta() {
+  const site = state.site;
+  const featuredProduct =
+    state.activeProducts.find((product) => product.highlight) ||
+    state.activeProducts[0] ||
+    null;
+  const featureImage = site.heroFeatureImage || featuredProduct?.cover || "";
+  const featureTitle = site.heroFeatureTitle || featuredProduct?.name || "本週精選";
+  const featureText = site.heroFeatureText || featuredProduct?.summary || site.tagline;
+
+  document.title = site.title;
   applySiteTheme(normalizeTheme(site.theme));
 
   if (elements.siteTitle) {
-    elements.siteTitle.textContent = title;
+    elements.siteTitle.textContent = site.title;
   }
   if (elements.siteTagline) {
-    elements.siteTagline.textContent = tagline;
+    elements.siteTagline.textContent = site.tagline;
   }
   if (elements.siteContact) {
-    elements.siteContact.textContent = `聯絡我們：${contact}`;
+    elements.siteContact.textContent = `聯絡我們：${site.contactEmail}`;
+  }
+  if (elements.siteLogo) {
+    if (site.logoImage) {
+      elements.siteLogo.hidden = false;
+      elements.siteLogo.src = site.logoImage;
+      elements.siteLogo.alt = `${site.title} Logo`;
+    } else {
+      elements.siteLogo.hidden = true;
+      elements.siteLogo.removeAttribute("src");
+      elements.siteLogo.alt = "";
+    }
+  }
+  if (elements.heroFeatureImage) {
+    elements.heroFeatureImage.src = featureImage;
+    elements.heroFeatureImage.alt = featureTitle;
+  }
+  if (elements.heroFeatureTitle) {
+    elements.heroFeatureTitle.textContent = featureTitle;
+  }
+  if (elements.heroFeatureText) {
+    elements.heroFeatureText.textContent = featureText;
   }
 
-  renderSocialLinks(site.socialLinks, contact);
+  renderSocialLinks(site.socialLinks, site.contactEmail);
 }
 
 function renderSocialLinks(socialLinks = {}, contactEmail = "") {
@@ -217,11 +282,8 @@ function renderSocialLinks(socialLinks = {}, contactEmail = "") {
     return;
   }
 
-  const links = {
-    ...normalizeSocialLinks(socialLinks),
-    email: contactEmail ? `mailto:${contactEmail}` : ""
-  };
-  const availableEntries = Object.entries(SOCIAL_META).filter(([key]) => links[key]);
+  const links = normalizeSocialLinks(socialLinks, contactEmail);
+  const availableEntries = Object.entries(SOCIAL_META).filter(([key]) => Boolean(links[key]));
   elements.socialLinks.innerHTML = "";
 
   if (!availableEntries.length) {
@@ -233,6 +295,8 @@ function renderSocialLinks(socialLinks = {}, contactEmail = "") {
     const anchor = document.createElement("a");
     anchor.className = "social-link";
     anchor.href = links[key];
+    anchor.setAttribute("aria-label", meta.label);
+
     if (links[key].startsWith("mailto:")) {
       anchor.removeAttribute("target");
       anchor.removeAttribute("rel");
@@ -240,7 +304,7 @@ function renderSocialLinks(socialLinks = {}, contactEmail = "") {
       anchor.target = "_blank";
       anchor.rel = "noreferrer";
     }
-    anchor.setAttribute("aria-label", meta.label);
+
     anchor.innerHTML = `${meta.icon}<span class="sr-only">${meta.label}</span>`;
     elements.socialLinks.append(anchor);
   });
@@ -253,21 +317,19 @@ function renderCategoryMenu() {
     return;
   }
 
-  const tree = buildCategoryTree(state.activeProducts);
+  const groups = buildCategoryTree(state.activeProducts);
   elements.categoryNav.innerHTML = "";
 
   const allButton = document.createElement("button");
   allButton.type = "button";
-  allButton.className = `category-menu-button category-menu-button-all${
-    !state.category && !state.subcategory ? " is-active" : ""
-  }`;
+  allButton.className = `category-menu-button${!state.category && !state.subcategory ? " is-active" : ""}`;
   allButton.textContent = ALL_PRODUCTS_LABEL;
   allButton.addEventListener("click", () => {
     updateFilters({ category: "", subcategory: "" });
   });
   elements.categoryNav.append(allButton);
 
-  tree.forEach((group) => {
+  groups.forEach((group) => {
     const details = document.createElement("details");
     details.className = "category-group";
     details.open = state.category === group.name;
@@ -282,29 +344,30 @@ function renderCategoryMenu() {
     const submenu = document.createElement("div");
     submenu.className = "category-submenu";
 
-    const allWithinCategory = document.createElement("button");
-    allWithinCategory.type = "button";
-    allWithinCategory.className = `category-submenu-button${
-      state.category === group.name && !state.subcategory ? " is-active" : ""
-    }`;
-    allWithinCategory.textContent = `全部 ${group.name}`;
-    allWithinCategory.addEventListener("click", () => {
+    const categoryButton = document.createElement("button");
+    categoryButton.type = "button";
+    categoryButton.className = `category-submenu-button${state.category === group.name && !state.subcategory ? " is-active" : ""}`;
+    categoryButton.innerHTML = `
+      <span>全部 ${escapeHtml(group.name)}</span>
+      <span class="category-count">${group.count}</span>
+    `;
+    categoryButton.addEventListener("click", () => {
       updateFilters({ category: group.name, subcategory: "" });
     });
-    submenu.append(allWithinCategory);
+    submenu.append(categoryButton);
 
-    group.subcategories.forEach((child) => {
+    group.subcategories.forEach((subcategory) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = `category-submenu-button${
-        state.category === group.name && state.subcategory === child.name ? " is-active" : ""
+        state.category === group.name && state.subcategory === subcategory.name ? " is-active" : ""
       }`;
       button.innerHTML = `
-        <span>${escapeHtml(child.name)}</span>
-        <span class="category-count">${child.count}</span>
+        <span>${escapeHtml(subcategory.name)}</span>
+        <span class="category-count">${subcategory.count}</span>
       `;
       button.addEventListener("click", () => {
-        updateFilters({ category: group.name, subcategory: child.name });
+        updateFilters({ category: group.name, subcategory: subcategory.name });
       });
       submenu.append(button);
     });
@@ -330,17 +393,17 @@ function renderActiveFilters() {
   }
 
   if (state.category) {
-    const chip = document.createElement("span");
-    chip.className = "chip is-active";
-    chip.textContent = state.category;
-    elements.categoryFilters.append(chip);
+    const categoryChip = document.createElement("span");
+    categoryChip.className = "chip is-active";
+    categoryChip.textContent = state.category;
+    elements.categoryFilters.append(categoryChip);
   }
 
   if (state.subcategory) {
-    const chip = document.createElement("span");
-    chip.className = "chip is-active";
-    chip.textContent = state.subcategory;
-    elements.categoryFilters.append(chip);
+    const subcategoryChip = document.createElement("span");
+    subcategoryChip.className = "chip is-active";
+    subcategoryChip.textContent = state.subcategory;
+    elements.categoryFilters.append(subcategoryChip);
   }
 
   const resetButton = document.createElement("button");
@@ -362,23 +425,18 @@ function updateFilters({ category, subcategory }) {
   renderCatalog();
 
   if (compactLayoutQuery.matches) {
-    state.categoryPanelOpen = false;
-    renderCategoryPanelState();
+    state.isCategoryDrawerOpen = false;
+    renderCategoryDrawerState();
   }
 }
 
-function syncFilterToProduct(product, { closePanel = false, renderMenu = false } = {}) {
-  state.category = asText(product?.category);
+function syncFiltersToProduct(product, { renderMenus = false } = {}) {
+  state.category = asText(product?.category, "未分類");
   state.subcategory = asText(product?.subcategory);
 
-  if (renderMenu) {
+  if (renderMenus) {
     renderCategoryMenu();
     renderActiveFilters();
-  }
-
-  if (closePanel && compactLayoutQuery.matches) {
-    state.categoryPanelOpen = false;
-    renderCategoryPanelState();
   }
 }
 
@@ -418,7 +476,13 @@ function renderCatalog() {
     card.tabIndex = 0;
 
     const orderLink = asText(product.orderLink).trim();
-    const categoryMeta = formatCategoryLabel(product);
+    const handleSelect = () => {
+      state.selectedId = product.id;
+      window.location.hash = encodeURIComponent(product.id);
+      renderCatalog();
+      renderDetail(product);
+    };
+
     card.innerHTML = `
       <div class="product-card-image">
         <img src="${escapeHtml(asText(product.cover))}" alt="${escapeHtml(asText(product.name))}">
@@ -429,7 +493,7 @@ function renderCatalog() {
           .map((badge) => `<span class="tag">${escapeHtml(asText(badge))}</span>`)
           .join("")}
       </div>
-      <p class="product-card-meta">${escapeHtml(categoryMeta)}</p>
+      <p class="product-card-meta">${escapeHtml(formatCategoryLabel(product))}</p>
       <h3>${escapeHtml(asText(product.name))}</h3>
       <p class="product-card-subtitle">${escapeHtml(asText(product.subtitle))}</p>
       <p>${escapeHtml(asText(product.summary))}</p>
@@ -446,14 +510,6 @@ function renderCatalog() {
         }
       </div>
     `;
-
-    const handleSelect = () => {
-      state.selectedId = product.id;
-      syncFilterToProduct(product, { closePanel: true, renderMenu: true });
-      window.location.hash = encodeURIComponent(product.id);
-      renderCatalog();
-      renderDetail(product);
-    };
 
     card.addEventListener("click", (event) => {
       const target = event.target;
@@ -621,6 +677,7 @@ function buildCategoryTree(products) {
   products.forEach((product) => {
     const categoryName = asText(product.category, "未分類");
     const subcategoryName = asText(product.subcategory);
+
     if (!groups.has(categoryName)) {
       groups.set(categoryName, {
         name: categoryName,
@@ -655,66 +712,44 @@ function formatCategoryLabel(product) {
   return subcategory ? `${category} / ${subcategory}` : category;
 }
 
-function applySiteTheme(theme) {
-  const root = document.documentElement;
-  const values = {
-    "--page-bg-start": theme.pageStart,
-    "--page-bg-end": theme.pageEnd,
-    "--page-bg-glow": theme.pageGlow,
-    "--hero-start": theme.heroStart,
-    "--hero-end": theme.heroEnd,
-    "--hero-panel": theme.heroPanel,
-    "--catalog-panel": theme.catalogPanel,
-    "--detail-panel": theme.detailPanel,
-    "--card": theme.card,
-    "--accent": theme.accent,
-    "--accent-deep": theme.accentDeep,
-    "--accent-text": theme.accentText,
-    "--ink": theme.ink,
-    "--muted": theme.muted,
-    "--line-color": theme.line,
-    "--line": withAlpha(theme.line, 0.44),
-    "--line-strong": withAlpha(theme.line, 0.72),
-    "--accent-08": withAlpha(theme.accent, 0.08),
-    "--accent-10": withAlpha(theme.accent, 0.1),
-    "--accent-12": withAlpha(theme.accent, 0.12),
-    "--accent-14": withAlpha(theme.accent, 0.14),
-    "--accent-16": withAlpha(theme.accent, 0.16),
-    "--accent-20": withAlpha(theme.accent, 0.2),
-    "--accent-28": withAlpha(theme.accent, 0.28),
-    "--accent-deep-08": withAlpha(theme.accentDeep, 0.08),
-    "--accent-deep-10": withAlpha(theme.accentDeep, 0.1),
-    "--accent-deep-12": withAlpha(theme.accentDeep, 0.12),
-    "--accent-deep-18": withAlpha(theme.accentDeep, 0.18),
-    "--card-shadow": `0 20px 40px ${withAlpha(theme.accentDeep, 0.14)}`,
-    "--shadow": `0 24px 60px ${withAlpha(theme.accentDeep, 0.16)}`
-  };
-
-  Object.entries(values).forEach(([key, value]) => {
-    root.style.setProperty(key, value);
-  });
-}
-
 function normalizeSite(site = {}) {
   return {
-    title: asText(site.title, "Tinnsi Bakery"),
-    tagline: asText(
-      site.tagline,
-      "以溫暖色調與清楚的商品分類，整理出適合展示與分享的前台型錄。"
-    ),
-    contactEmail: asText(site.contactEmail, "hello@tinnsi.example"),
-    currency: asText(site.currency, "TWD"),
-    socialLinks: normalizeSocialLinks(site.socialLinks),
+    title: asText(site.title, DEFAULT_SITE.title),
+    tagline: asText(site.tagline, DEFAULT_SITE.tagline),
+    contactEmail: asText(site.contactEmail, DEFAULT_SITE.contactEmail),
+    socialLinks: normalizeSocialLinks(site.socialLinks, site.contactEmail),
+    logoImage: asText(site.logoImage),
+    heroFeatureImage: asText(site.heroFeatureImage),
+    heroFeatureTitle: asText(site.heroFeatureTitle),
+    heroFeatureText: asText(site.heroFeatureText),
+    currency: asText(site.currency, DEFAULT_SITE.currency),
     theme: normalizeTheme(site.theme)
   };
 }
 
-function normalizeSocialLinks(socialLinks = {}) {
+function normalizeSocialLinks(socialLinks = {}, contactEmail = "") {
+  const emailValue = asText(socialLinks.email || contactEmail).trim();
   return {
     instagram: asText(socialLinks.instagram).trim(),
     facebook: asText(socialLinks.facebook).trim(),
-    line: asText(socialLinks.line).trim()
+    email: normalizeEmailLink(emailValue)
   };
+}
+
+function normalizeEmailLink(value) {
+  if (!value) {
+    return "";
+  }
+
+  if (value.startsWith("mailto:")) {
+    return value;
+  }
+
+  if (value.includes("@") && !value.includes("://")) {
+    return `mailto:${value}`;
+  }
+
+  return value;
 }
 
 function normalizeProduct(product = {}) {
@@ -724,7 +759,7 @@ function normalizeProduct(product = {}) {
     subtitle: asText(product.subtitle),
     summary: asText(product.summary),
     price: typeof product.price === "number" ? product.price : product.price ? Number(product.price) : null,
-    currency: asText(product.currency, "TWD"),
+    currency: asText(product.currency, DEFAULT_SITE.currency),
     category: asText(product.category, "未分類"),
     subcategory: asText(product.subcategory),
     sku: asText(product.sku),
@@ -746,9 +781,65 @@ function normalizeProduct(product = {}) {
 }
 
 function normalizeTheme(theme = {}) {
+  const aliases = {
+    pageBg: ["pageBg", "pageStart", "pageEnd"],
+    heroBg: ["heroBg", "heroStart", "heroEnd"],
+    featureBg: ["featureBg", "heroPanel", "heroEnd"],
+    sidebarBg: ["sidebarBg", "catalogPanel"],
+    catalogBg: ["catalogBg", "catalogPanel"],
+    detailBg: ["detailBg", "detailPanel"],
+    cardBg: ["cardBg", "card"],
+    accent: ["accent"],
+    accentDeep: ["accentDeep"],
+    accentText: ["accentText"],
+    ink: ["ink"],
+    muted: ["muted"],
+    line: ["line"]
+  };
+
   return Object.fromEntries(
-    Object.entries(DEFAULT_THEME).map(([key, fallback]) => [key, normalizeHexColor(theme[key], fallback)])
+    Object.entries(DEFAULT_THEME).map(([key, fallback]) => {
+      const sourceKey = aliases[key].find((candidate) => theme?.[candidate]);
+      return [key, normalizeHexColor(sourceKey ? theme[sourceKey] : "", fallback)];
+    })
   );
+}
+
+function applySiteTheme(theme) {
+  const root = document.documentElement;
+  const values = {
+    "--page-bg": theme.pageBg,
+    "--hero-bg": theme.heroBg,
+    "--feature-bg": theme.featureBg,
+    "--sidebar-bg": theme.sidebarBg,
+    "--catalog-bg": theme.catalogBg,
+    "--detail-bg": theme.detailBg,
+    "--card-bg": theme.cardBg,
+    "--accent": theme.accent,
+    "--accent-deep": theme.accentDeep,
+    "--accent-text": theme.accentText,
+    "--ink": theme.ink,
+    "--muted": theme.muted,
+    "--line-color": theme.line,
+    "--line": withAlpha(theme.line, 0.4),
+    "--line-strong": withAlpha(theme.line, 0.68),
+    "--accent-08": withAlpha(theme.accent, 0.08),
+    "--accent-10": withAlpha(theme.accent, 0.1),
+    "--accent-12": withAlpha(theme.accent, 0.12),
+    "--accent-16": withAlpha(theme.accent, 0.16),
+    "--accent-20": withAlpha(theme.accent, 0.2),
+    "--accent-28": withAlpha(theme.accent, 0.28),
+    "--accent-deep-08": withAlpha(theme.accentDeep, 0.08),
+    "--accent-deep-10": withAlpha(theme.accentDeep, 0.1),
+    "--accent-deep-12": withAlpha(theme.accentDeep, 0.12),
+    "--accent-deep-18": withAlpha(theme.accentDeep, 0.18),
+    "--shadow": `0 24px 60px ${withAlpha(theme.accentDeep, 0.14)}`,
+    "--card-shadow": `0 20px 40px ${withAlpha(theme.accentDeep, 0.12)}`
+  };
+
+  Object.entries(values).forEach(([key, value]) => {
+    root.style.setProperty(key, value);
+  });
 }
 
 function normalizeHexColor(value, fallback) {

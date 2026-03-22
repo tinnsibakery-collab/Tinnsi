@@ -168,6 +168,8 @@ test("storefront lets shoppers filter and inspect products", async ({ page }) =>
 
   const cards = page.locator("#product-grid .product-card");
   await expect(cards).toHaveCount(2);
+  await expect(page.locator("#hero-feature-image")).toBeVisible();
+  await expect(page.locator("#hero-feature-title")).not.toBeEmpty();
   await expect(page.locator("#product-detail")).toBeVisible();
 
   await page.locator("#search-input").fill("Aurora");
@@ -184,6 +186,30 @@ test("storefront lets shoppers filter and inspect products", async ({ page }) =>
   await expect(page.locator("#detail-order-link")).toHaveAttribute("href", /docs\.google\.com/);
 });
 
+test("storefront mobile drawer stays collapsed until opened", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  const categoryPanel = page.locator("#category-panel");
+  const categoryBackdrop = page.locator("#category-backdrop");
+  const categoryToggle = page.locator("#category-toggle");
+  const categoryClose = page.locator("#category-close");
+
+  await expect(categoryToggle).toBeVisible();
+  await expect(page.locator("#site-social-links .social-link")).toHaveCount(3);
+  await expect(page.locator("#site-social-links .social-link").nth(2)).toHaveAttribute("href", /^mailto:/);
+  await expect(categoryPanel).not.toHaveClass(/is-open/);
+  await expect(categoryBackdrop).toBeHidden();
+
+  await categoryToggle.click();
+  await expect(categoryPanel).toHaveClass(/is-open/);
+  await expect(categoryBackdrop).toBeVisible();
+
+  await categoryClose.click();
+  await expect(categoryPanel).not.toHaveClass(/is-open/);
+  await expect(categoryBackdrop).toBeHidden();
+});
+
 test("admin supports local editing, backup download, and backup import", async ({ page }) => {
   const originalPayload = await readLocalCatalog();
   await page.request.post("/_desktop/auto-publish", {
@@ -194,6 +220,11 @@ test("admin supports local editing, backup download, and backup import", async (
     await page.goto("/admin/");
     await expect(page.locator("#publish-shortcut-button")).toBeVisible();
     await expect(page.locator("#theme-editor")).toBeVisible();
+    await expect(page.locator("#site-social-email-input")).toBeVisible();
+    await expect(page.locator("#site-logo-image-input")).toBeVisible();
+    await expect(page.locator("#site-feature-image-input")).toBeVisible();
+    await expect(page.locator("#upload-site-logo")).toBeVisible();
+    await expect(page.locator("#upload-site-feature-image")).toBeVisible();
 
     const productItems = page.locator("#product-list .product-item");
     await expect(productItems).toHaveCount(2);
