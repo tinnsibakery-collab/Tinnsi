@@ -4,7 +4,7 @@
                  "tagline":  "讓產品照片、簡短介紹與訂購動線成為畫面的主角，其他資訊再由折頁展開。",
                  "contactEmail":  "hello@tinnsi.example",
                  "currency":  "TWD",
-                 "updatedAt":  "2026-03-22T10:02:48.500Z"
+                 "updatedAt":  "2026-03-22T10:05:11.565Z"
              },
     "products":  [
                      {
@@ -18,11 +18,12 @@
                          "sku":  "AU-TH-001",
                          "status":  "active",
                          "highlight":  true,
-                         "cover":  "assets/products/aurora-bottle/2026-03-22T09-54-42.981Z-roq0za-linen-lamp.svg",
+                         "cover":  "assets/products/aurora-bottle/2026-03-22T10-05-10.316Z-zmjr4a-linen-lamp.svg",
                          "gallery":  [
                                          "assets/placeholders/thermo-bottle.svg",
                                          "assets/placeholders/thermo-bottle-detail.svg",
-                                         "assets/products/aurora-bottle/2026-03-22T09-54-42.981Z-roq0za-linen-lamp.svg"
+                                         "assets/products/aurora-bottle/2026-03-22T09-54-42.981Z-roq0za-linen-lamp.svg",
+                                         "assets/products/aurora-bottle/2026-03-22T10-05-10.316Z-zmjr4a-linen-lamp.svg"
                                      ],
                          "badges":  [
                                         "新品",
@@ -43,7 +44,7 @@
                                               "content":  "點擊「填寫訂購單」後可前往 Google 表單留下需求。"
                                           }
                                       ],
-                         "updatedAt":  "2026-03-22T10:02:47.061Z"
+                         "updatedAt":  "2026-03-22T10:05:11.565Z"
                      },
                      {
                          "id":  "linen-lamp",
