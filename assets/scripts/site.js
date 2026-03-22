@@ -26,6 +26,8 @@ const state = {
 };
 
 const elements = {
+  hero: document.querySelector(".hero"),
+  heroPanel: document.querySelector(".hero-panel"),
   siteTitle: document.querySelector("#site-title"),
   siteTagline: document.querySelector("#site-tagline"),
   siteContact: document.querySelector("#site-contact"),
@@ -55,6 +57,8 @@ bootstrap().catch((error) => {
 });
 
 async function bootstrap() {
+  applyRuntimeVisibility();
+
   elements.searchInput.addEventListener("input", (event) => {
     state.searchTerm = event.target.value.trim().toLowerCase();
     renderCatalog();
@@ -96,6 +100,18 @@ async function bootstrap() {
     renderCatalog();
     renderDetail(product);
   });
+}
+
+function applyRuntimeVisibility() {
+  const hideOperationalMeta = !isLocalRuntime();
+  if (elements.heroPanel) {
+    elements.heroPanel.hidden = hideOperationalMeta;
+  }
+  elements.hero?.classList.toggle("hero-compact", hideOperationalMeta);
+}
+
+function isLocalRuntime() {
+  return ["127.0.0.1", "localhost", "::1"].includes(window.location.hostname);
 }
 
 function applySiteMeta(site = {}) {
