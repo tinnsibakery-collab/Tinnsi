@@ -238,7 +238,10 @@ function applySiteMeta() {
     null;
   const featureImage = site.heroFeatureImage || featuredProduct?.cover || "";
   const featureTitle = site.heroFeatureTitle || featuredProduct?.name || "本週精選";
-  const featureText = site.heroFeatureText || featuredProduct?.summary || site.tagline;
+  const featureText =
+    site.heroFeatureText ||
+    site.tagline ||
+    "以一張主視覺照片搭配一句短文，呈現目前主打商品與品牌氛圍。";
 
   document.title = site.title;
   applySiteTheme(normalizeTheme(site.theme));
