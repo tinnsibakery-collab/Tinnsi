@@ -8,13 +8,11 @@ const output = path.join(root, "dist-pages");
 async function main() {
   await fs.rm(output, { recursive: true, force: true });
 
-  // Keep admin/ in the repository, but never publish it to GitHub Pages.
+  // Publish both the storefront and the browser admin to GitHub Pages.
   await copyFile("index.html");
+  await copyDirectory("admin");
   await copyDirectory("data");
-  await copyFile("assets/styles/site.css");
-  await copyFile("assets/scripts/site.js");
-  await copyDirectory("assets/placeholders");
-  await copyDirectoryIfExists("assets/products");
+  await copyDirectory("assets");
 }
 
 async function copyFile(relativePath) {
@@ -29,17 +27,6 @@ async function copyDirectory(relativePath) {
   const target = path.join(output, relativePath);
   await fs.mkdir(path.dirname(target), { recursive: true });
   await fs.cp(source, target, { recursive: true });
-}
-
-async function copyDirectoryIfExists(relativePath) {
-  try {
-    await fs.access(path.join(root, relativePath));
-    await copyDirectory(relativePath);
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      throw error;
-    }
-  }
 }
 
 main().catch((error) => {
