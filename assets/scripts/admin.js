@@ -966,35 +966,166 @@ function removeSection(index) {
 
 function renderGalleryPreview(product) {
   elements.galleryPreview.innerHTML = "";
-  const images = [product.cover, ...product.gallery.slice().reverse()].filter(Boolean);
+  const images = uniqueStrings([product.cover, ...product.gallery.slice().reverse()].filter(Boolean));
 
   if (!images.length) {
     elements.galleryPreview.innerHTML = '<p class="panel-note">尚未設定任何圖片。</p>';
     return;
   }
 
-  [...new Set(images)].forEach((imagePath) => {
+  images.forEach((imagePath) => {
     const previewUrl = buildPreviewUrl(imagePath);
-    const card = document.createElement("div");
+    const card = document.createElement("article");
     card.className = "gallery-card";
-    card.innerHTML = `
-      <a class="gallery-card-link" href="${escapeAttribute(previewUrl)}" target="_blank" rel="noreferrer">
-        <img src="${escapeAttribute(previewUrl)}" alt="${escapeHtml(product.name || "product image")}">
-      </a>
-      <p><a class="gallery-path" href="${escapeAttribute(previewUrl)}" target="_blank" rel="noreferrer">${escapeHtml(imagePath)}</a></p>
-    `;
+    if (product.cover === imagePath) {
+      card.classList.add("is-cover");
+    }
+
+    const media = document.createElement("div");
+    media.className = "gallery-card-media";
+
+    const image = document.createElement("img");
+    image.src = previewUrl;
+    image.alt = product.name || "product image";
+    image.loading = "lazy";
+    image.decoding = "async";
+    media.append(image);
+
+    const badge = document.createElement("span");
+    badge.className = "gallery-card-badge";
+    badge.textContent = product.cover === imagePath ? "封面" : "商品圖";
+    media.append(badge);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "button button-secondary gallery-card-delete";
+    deleteButton.textContent = "×";
+    deleteButton.title = "刪除這張圖片";
+    deleteButton.setAttribute("aria-label", `刪除圖片 ${imagePath}`);
+    deleteButton.addEventListener("click", () => {
+      void removeCurrentProductImage(imagePath);
+    });
+    media.append(deleteButton);
+
+    const body = document.createElement("div");
+    body.className = "gallery-card-body";
+
+    const path = document.createElement("p");
+    path.className = "gallery-card-path";
+    path.textContent = imagePath;
+    path.title = imagePath;
+    body.append(path);
+
+    const actions = document.createElement("div");
+    actions.className = "gallery-card-actions";
+
+    if (product.cover !== imagePath) {
+      const coverButton = document.createElement("button");
+      coverButton.type = "button";
+      coverButton.className = "button button-secondary gallery-card-action";
+      coverButton.textContent = "設為封面";
+      coverButton.addEventListener("click", () => {
+        setCurrentProductCoverImage(imagePath);
+      });
+      actions.append(coverButton);
+    } else {
+      const coverIndicator = document.createElement("span");
+      coverIndicator.className = "gallery-card-current";
+      coverIndicator.textContent = "目前封面";
+      actions.append(coverIndicator);
+    }
+
+    body.append(actions);
+    card.append(media, body);
     elements.galleryPreview.append(card);
   });
 }
 
-function renderSiteAssetPreviews() {
-  renderSiteAssetPreview(elements.siteLogoPreview, state.site.logoImage, "Logo 預覽");
-  renderSiteAssetPreview(elements.siteFeaturePreview, state.site.heroFeatureImage, "頂部照片預覽");
-  renderSiteAssetPreview(elements.siteInsurancePreview, state.site.insuranceImage, "產品責任險預覽");
-  renderSiteAssetPreview(elements.siteAboutPreview, state.site.aboutImage, "關於我們預覽");
+function setCurrentProductCoverImage(imagePath) {
+  const product = state.products[state.currentIndex];
+  if (!product || !imagePath || product.cover === imagePath) {
+    return;
+  }
+
+  product.cover = imagePath;
+  product._dirty = true;
+  renderProductList();
+  renderCurrentProduct();
+  renderDirtyIndicator();
+  scheduleDesktopSync();
+  appendStatus("已將圖片設為封面。");
 }
 
-function renderSiteAssetPreview(container, assetPath, altText) {
+async function removeCurrentProductImage(imagePath) {
+  if (busy) {
+    return;
+  }
+
+  const product = state.products[state.currentIndex];
+  if (!product || !imagePath) {
+    return;
+  }
+
+  const nextGallery = product.gallery.filter((path) => path !== imagePath);
+  const nextCover = product.cover === imagePath ? nextGallery[0] || "" : product.cover;
+
+  if (product.status === "active" && !nextCover) {
+    appendStatus("上架中的商品至少要保留一張圖片，請先上傳新圖片，或先改成 draft 再刪除。", true);
+    return;
+  }
+
+  const useDesktopBridge = canUseDesktopGitHub();
+  product.gallery = uniqueStrings(nextGallery);
+  product.cover = nextCover;
+  product._dirty = true;
+
+  renderProductList();
+  renderCurrentProduct();
+  renderDirtyIndicator();
+  scheduleDesktopSync();
+
+  try {
+    setBusy(true);
+    persistSettings();
+
+    if (useDesktopBridge) {
+      const snapshotResult = await syncDesktopSnapshot(true, { silentSuccess: true });
+      if (!snapshotResult?.published) {
+        await postDesktop("/_desktop/publish-now", {});
+      }
+
+      if (isRepoManagedAsset(imagePath, ["assets/products/"])) {
+        await syncDesktopSettings(true);
+        try {
+          await postDesktop("/_desktop/delete-image", {
+            targetPath: imagePath,
+            message: `chore: delete ${getFileNameFromPath(imagePath)}`
+          });
+          appendStatus("已刪除圖片，並同步更新到前台。");
+        } catch (cleanupError) {
+          appendStatus(`圖片已從商品移除，但原始檔案清理失敗：${cleanupError.message}`, true);
+        }
+      } else {
+        appendStatus("已刪除圖片，並同步更新到前台。");
+      }
+    } else {
+      appendStatus("已從商品移除圖片。發布到前台後就會生效，原始檔案會先保留在 GitHub。");
+    }
+  } catch (error) {
+    appendStatus(`圖片已從商品草稿移除，但同步失敗：${error.message}`, true);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function renderSiteAssetPreviews() {
+  renderSiteAssetPreview(elements.siteLogoPreview, state.site.logoImage, "Logo 預覽", "logo");
+  renderSiteAssetPreview(elements.siteFeaturePreview, state.site.heroFeatureImage, "頂部照片預覽", "hero");
+  renderSiteAssetPreview(elements.siteInsurancePreview, state.site.insuranceImage, "產品責任險預覽", "insurance");
+  renderSiteAssetPreview(elements.siteAboutPreview, state.site.aboutImage, "關於我們預覽", "about");
+}
+
+function renderSiteAssetPreview(container, assetPath, altText, kind) {
   if (!container) {
     return;
   }
@@ -1006,15 +1137,155 @@ function renderSiteAssetPreview(container, assetPath, altText) {
   }
 
   const previewUrl = buildPreviewUrl(assetPath);
-  const card = document.createElement("div");
+  const card = document.createElement("article");
   card.className = "gallery-card";
-  card.innerHTML = `
-    <a class="gallery-card-link" href="${escapeAttribute(previewUrl)}" target="_blank" rel="noreferrer">
-      <img src="${escapeAttribute(previewUrl)}" alt="${escapeAttribute(altText)}">
-    </a>
-    <p><a class="gallery-path" href="${escapeAttribute(previewUrl)}" target="_blank" rel="noreferrer">${escapeHtml(assetPath)}</a></p>
-  `;
+
+  const media = document.createElement("div");
+  media.className = "gallery-card-media";
+
+  const image = document.createElement("img");
+  image.src = previewUrl;
+  image.alt = altText;
+  image.loading = "lazy";
+  image.decoding = "async";
+  media.append(image);
+
+  const badge = document.createElement("span");
+  badge.className = "gallery-card-badge";
+  badge.textContent = "網站圖片";
+  media.append(badge);
+
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "button button-secondary gallery-card-delete";
+  deleteButton.textContent = "×";
+  deleteButton.title = "移除這張圖片";
+  deleteButton.setAttribute("aria-label", `移除圖片 ${altText}`);
+  deleteButton.addEventListener("click", () => {
+    void removeSiteAsset(kind);
+  });
+  media.append(deleteButton);
+
+  const body = document.createElement("div");
+  body.className = "gallery-card-body";
+
+  const path = document.createElement("p");
+  path.className = "gallery-card-path";
+  path.textContent = assetPath;
+  path.title = assetPath;
+  body.append(path);
+
+  const actions = document.createElement("div");
+  actions.className = "gallery-card-actions";
+
+  const clearButton = document.createElement("button");
+  clearButton.type = "button";
+  clearButton.className = "button button-secondary gallery-card-action";
+  clearButton.textContent = "移除圖片";
+  clearButton.addEventListener("click", () => {
+    void removeSiteAsset(kind);
+  });
+  actions.append(clearButton);
+
+  body.append(actions);
+  card.append(media, body);
   container.append(card);
+}
+
+function getSiteAssetConfig(kind) {
+  const assetConfig = {
+    logo: {
+      fileInput: elements.siteLogoFile,
+      pathInput: elements.siteLogoImage,
+      stateKey: "logoImage",
+      assetType: "logo",
+      label: "Logo"
+    },
+    hero: {
+      fileInput: elements.siteFeatureFile,
+      pathInput: elements.siteFeatureImage,
+      stateKey: "heroFeatureImage",
+      assetType: "hero",
+      label: "頂部照片"
+    },
+    insurance: {
+      fileInput: elements.siteInsuranceFile,
+      pathInput: elements.siteInsuranceImage,
+      stateKey: "insuranceImage",
+      assetType: "insurance",
+      label: "產品責任險圖片"
+    },
+    about: {
+      fileInput: elements.siteAboutFile,
+      pathInput: elements.siteAboutImage,
+      stateKey: "aboutImage",
+      assetType: "about",
+      label: "關於我們圖片"
+    }
+  };
+
+  return assetConfig[kind] || null;
+}
+
+async function removeSiteAsset(kind) {
+  if (busy) {
+    return;
+  }
+
+  const config = getSiteAssetConfig(kind);
+  if (!config) {
+    return;
+  }
+
+  const currentPath = String(state.site[config.stateKey] || "").trim();
+  if (!currentPath) {
+    appendStatus(`${config.label}目前沒有圖片可移除。`, true);
+    return;
+  }
+
+  const useDesktopBridge = canUseDesktopGitHub();
+  state.site[config.stateKey] = "";
+  config.pathInput.value = "";
+  if (config.fileInput) {
+    config.fileInput.value = "";
+  }
+  state.siteDirty = true;
+  renderSiteAssetPreviews();
+  renderDirtyIndicator();
+  scheduleDesktopSync();
+
+  try {
+    setBusy(true);
+    persistSettings();
+
+    if (useDesktopBridge) {
+      const snapshotResult = await syncDesktopSnapshot(true, { silentSuccess: true });
+      if (!snapshotResult?.published) {
+        await postDesktop("/_desktop/publish-now", {});
+      }
+
+      if (isRepoManagedAsset(currentPath, ["assets/site/"])) {
+        await syncDesktopSettings(true);
+        try {
+          await postDesktop("/_desktop/delete-image", {
+            targetPath: currentPath,
+            message: `chore: delete ${getFileNameFromPath(currentPath)}`
+          });
+          appendStatus(`${config.label}已移除，並同步更新到前台。`);
+        } catch (cleanupError) {
+          appendStatus(`${config.label}已從設定移除，但原始檔案清理失敗：${cleanupError.message}`, true);
+        }
+      } else {
+        appendStatus(`${config.label}已移除，並同步更新到前台。`);
+      }
+    } else {
+      appendStatus(`${config.label}已從設定移除。發布到前台後就會生效，原始檔案會先保留在 GitHub。`);
+    }
+  } catch (error) {
+    appendStatus(`${config.label}已從設定移除，但同步失敗：${error.message}`, true);
+  } finally {
+    setBusy(false);
+  }
 }
 
 function buildPreviewUrl(imagePath) {
@@ -1038,6 +1309,29 @@ function buildPreviewUrl(imagePath) {
   return value;
 }
 
+function isRepoManagedAsset(imagePath, allowedPrefixes = ["assets/products/", "assets/site/"]) {
+  const value = String(imagePath || "").trim();
+  if (!value) {
+    return false;
+  }
+
+  if (/^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith("data:") || value.startsWith("blob:")) {
+    return false;
+  }
+
+  return allowedPrefixes.some((prefix) => value.startsWith(prefix));
+}
+
+function getFileNameFromPath(imagePath) {
+  const value = String(imagePath || "").trim();
+  if (!value) {
+    return "image";
+  }
+
+  const segments = value.split("/");
+  return segments[segments.length - 1] || "image";
+}
+
 function handleProductInput() {
   if (hydratingProductForm) {
     return;
@@ -1047,6 +1341,22 @@ function handleProductInput() {
   if (!product) {
     return;
   }
+
+  const previousListSignature = JSON.stringify({
+    id: product.id,
+    name: product.name,
+    subtitle: product.subtitle,
+    price: product.price,
+    status: product.status,
+    highlight: product.highlight,
+    cover: product.cover,
+    category: product.category,
+    subcategory: product.subcategory
+  });
+  const previousGallerySignature = JSON.stringify({
+    cover: product.cover,
+    gallery: product.gallery
+  });
 
   product.id = elements.productFields.id.value.trim();
   product.name = elements.productFields.name.value.trim();
@@ -1065,8 +1375,28 @@ function handleProductInput() {
   product.gallery = parseLines(elements.productFields.gallery.value);
   product._dirty = true;
 
-  renderProductList();
-  renderGalleryPreview(product);
+  const nextListSignature = JSON.stringify({
+    id: product.id,
+    name: product.name,
+    subtitle: product.subtitle,
+    price: product.price,
+    status: product.status,
+    highlight: product.highlight,
+    cover: product.cover,
+    category: product.category,
+    subcategory: product.subcategory
+  });
+  const nextGallerySignature = JSON.stringify({
+    cover: product.cover,
+    gallery: product.gallery
+  });
+
+  if (previousListSignature !== nextListSignature) {
+    renderProductList();
+  }
+  if (previousGallerySignature !== nextGallerySignature) {
+    renderGalleryPreview(product);
+  }
   renderDirtyIndicator();
   scheduleDesktopSync();
 }
@@ -1395,7 +1725,7 @@ async function uploadSiteAsset(kind) {
     }
   };
 
-  const config = assetConfig[kind];
+  const config = getSiteAssetConfig(kind) || assetConfig[kind];
   if (!config) {
     appendStatus("不支援的網站圖片類型。", true);
     return;
