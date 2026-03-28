@@ -383,10 +383,20 @@ function applySiteMeta() {
   }
   if (elements.siteLogo) {
     if (site.logoImage) {
+      elements.siteLogo.onerror = () => {
+        elements.siteLogo.hidden = true;
+        elements.siteLogo.removeAttribute("src");
+        elements.siteLogo.alt = "";
+      };
+      elements.siteLogo.onload = () => {
+        elements.siteLogo.hidden = false;
+      };
       elements.siteLogo.hidden = false;
       elements.siteLogo.src = site.logoImage;
       elements.siteLogo.alt = `${site.title} Logo`;
     } else {
+      elements.siteLogo.onerror = null;
+      elements.siteLogo.onload = null;
       elements.siteLogo.hidden = true;
       elements.siteLogo.removeAttribute("src");
       elements.siteLogo.alt = "";
