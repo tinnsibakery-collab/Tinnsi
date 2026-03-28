@@ -9,10 +9,16 @@
                                      "facebook":  "https://www.facebook.com/",
                                      "email":  "hello@tinnsi.example"
                                  },
-                 "logoImage":  "",
+                 "logoImage":  "assets/site/logo/2026-03-28T15-53-32.185Z-b2nbb8-去背LOGO.png",
                  "heroFeatureImage":  "assets/products/aurora-bottle/2026-03-22T12-21-09.581Z-4868sx-20240104_201820.jpg",
                  "heroFeatureTitle":  "本週精選",
                  "heroFeatureText":  "以一張主視覺照片搭配一句短文，呈現目前主打商品與品牌氛圍。",
+                 "insuranceLabel":  "產品責任險",
+                 "insuranceImage":  "",
+                 "insuranceText":  "可在這裡填寫產品責任險的保險說明、承保資訊與補充文字。",
+                 "aboutLabel":  "關於我們",
+                 "aboutImage":  "",
+                 "aboutText":  "可在這裡填寫品牌介紹、店家故事與圖片。",
                  "theme":  {
                                "pageBg":  "#F8F4ED",
                                "heroBg":  "#F5E7D8",
@@ -28,7 +34,7 @@
                                "muted":  "#6F655A",
                                "line":  "#D4C2B3"
                            },
-                 "updatedAt":  "2026-03-22T15:31:14.562Z"
+                 "updatedAt":  "2026-03-28T15:53:34.450Z"
              },
     "products":  [
                      {
