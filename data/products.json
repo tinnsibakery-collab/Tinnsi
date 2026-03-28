@@ -10,7 +10,7 @@
                                      "email":  "hello@tinnsi.example"
                                  },
                  "logoImage":  "assets/site/logo/2026-03-28T15-53-32.185Z-b2nbb8-去背LOGO.png",
-                 "heroFeatureImage":  "",
+                 "heroFeatureImage":  "assets/site/hero/2026-03-28T16-29-45.011Z-nau5zi-1120365.jpg",
                  "heroFeatureTitle":  "本週精選",
                  "heroFeatureText":  "以一張主視覺照片搭配一句短文，呈現目前主打商品與品牌氛圍。",
                  "insuranceLabel":  "產品責任險",
@@ -34,7 +34,7 @@
                                "muted":  "#6F655A",
                                "line":  "#D4C2B3"
                            },
-                 "updatedAt":  "2026-03-28T16:29:25.569Z"
+                 "updatedAt":  "2026-03-28T16:29:50.562Z"
              },
     "products":  [
                      {
