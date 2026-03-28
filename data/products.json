@@ -30,11 +30,11 @@
                                "accent":  "#BC5F2F",
                                "accentDeep":  "#7F3710",
                                "accentText":  "#FFF8F1",
-                               "ink":  "#1D1A17",
+                               "ink":  "#E8913B",
                                "muted":  "#6F655A",
                                "line":  "#D4C2B3"
                            },
-                 "updatedAt":  "2026-03-28T16:29:58.930Z"
+                 "updatedAt":  "2026-03-28T16:33:48.330Z"
              },
     "products":  [
                      {
@@ -74,7 +74,7 @@
                                               "content":  "點擊「填寫訂購單」後可前往 Google 表單留下需求。"
                                           }
                                       ],
-                         "updatedAt":  "2026-03-28T16:29:58.930Z"
+                         "updatedAt":  "2026-03-28T16:33:48.330Z"
                      },
                      {
                          "id":  "linen-lamp",
