@@ -85,7 +85,7 @@ input {
 .hero {
   position: relative;
   display: block;
-  min-height: clamp(300px, 42vw, 520px);
+  min-height: clamp(220px, 30vw, 360px);
   padding: 0;
   overflow: hidden;
   background: var(--hero-bg);
@@ -192,38 +192,40 @@ input {
 
 .hero-feature-media img {
   width: 100%;
-  min-height: clamp(300px, 42vw, 520px);
+  min-height: clamp(220px, 30vw, 360px);
   height: 100%;
   object-fit: cover;
 }
 
 .hero-feature-copy {
   position: absolute;
-  right: 20px;
+  right: auto;
   bottom: 20px;
   left: 20px;
   z-index: 2;
   display: grid;
-  gap: 10px;
-  width: min(calc(100% - 40px), 520px);
-  padding: 15px 16px 16px;
-  border-radius: 24px;
-  background: rgba(255, 248, 241, 0.8);
-  border: 1px solid rgba(255, 248, 241, 0.84);
-  backdrop-filter: blur(10px);
+  gap: 8px;
+  width: min(calc(100% - 40px), 420px);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
 }
 
 .hero-feature-copy h2 {
   font-size: clamp(2rem, 4.2vw, 3rem);
   line-height: 0.92;
   color: var(--hero-feature-title-text);
+  text-shadow: 0 3px 14px rgba(17, 12, 8, 0.34);
 }
 
 .hero-feature-copy p {
   margin: 0;
-  max-width: 44ch;
-  color: var(--ink);
+  max-width: 34ch;
+  color: var(--hero-brand-text);
   line-height: 1.7;
+  text-shadow: 0 2px 12px rgba(17, 12, 8, 0.28);
 }
 
 .main-layout {
@@ -918,7 +920,7 @@ input {
   }
 
   .hero {
-    min-height: clamp(320px, 56vw, 460px);
+    min-height: clamp(230px, 42vw, 320px);
     padding: 0;
   }
 
@@ -929,15 +931,15 @@ input {
   }
 
   .hero-feature-media img {
-    min-height: clamp(320px, 56vw, 460px);
+    min-height: clamp(230px, 42vw, 320px);
   }
 
   .hero-feature-copy {
-    right: 18px;
+    right: auto;
     bottom: 18px;
     left: 18px;
-    width: min(calc(100% - 36px), 480px);
-    padding: 14px 16px 16px;
+    width: min(calc(100% - 36px), 360px);
+    padding: 0;
   }
 
   .hero-feature-copy h2 {
@@ -1001,7 +1003,7 @@ input {
   }
 
   .hero {
-    min-height: clamp(280px, 74vw, 380px);
+    min-height: clamp(210px, 62vw, 280px);
   }
 
   .hero-main {
@@ -1011,27 +1013,27 @@ input {
   }
 
   .hero-feature-media img {
-    min-height: clamp(280px, 74vw, 380px);
+    min-height: clamp(210px, 62vw, 280px);
   }
 
   .hero-feature-copy {
-    right: 14px;
+    right: auto;
     bottom: 14px;
     left: 14px;
-    width: auto;
-    padding: 14px 14px 16px;
-    border-radius: 20px;
+    width: min(calc(100% - 28px), 260px);
+    padding: 0;
+    border-radius: 0;
   }
 
   .hero-feature-copy h2 {
-    font-size: clamp(1.5rem, 7.2vw, 2rem);
+    font-size: clamp(1.28rem, 6vw, 1.72rem);
     line-height: 0.96;
   }
 
   .hero-feature-copy p {
-    max-width: none;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    max-width: 24ch;
+    font-size: 0.86rem;
+    line-height: 1.45;
   }
 
   .product-card-actions {
