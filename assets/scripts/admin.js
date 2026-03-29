@@ -12,6 +12,8 @@ const DEFAULT_THEME = {
   heroStart: "#FFFDF9",
   heroEnd: "#F3DEC7",
   heroPanel: "#FFF8F1",
+  heroBrandText: "#FFF8F1",
+  heroFeatureTitleText: "#1D1A17",
   catalogPanel: "#FFF9F3",
   detailPanel: "#FFF7F0",
   card: "#FFFFFF",
@@ -77,6 +79,8 @@ function resetThemeConfig() {
     pageBg: "#F8F4ED",
     heroBg: "#F5E7D8",
     featureBg: "#FFF7F0",
+    heroBrandText: "#FFF8F1",
+    heroFeatureTitleText: "#1D1A17",
     sidebarBg: "#FFF9F3",
     catalogBg: "#FFF9F3",
     detailBg: "#FFF7F0",
@@ -92,16 +96,18 @@ function resetThemeConfig() {
   THEME_GROUPS.length = 0;
   THEME_GROUPS.push(
     {
-      title: "頁面區塊",
-      note: "每個區塊改成單一底色，不再使用漸層。",
+      title: "首頁頂部",
+      note: "首頁頂部的背景、照片卡與兩個主標題文字顏色都在這裡調整。",
       fields: [
         { key: "pageBg", label: "整頁背景", description: "網站最外層底色" },
-        { key: "heroBg", label: "頂部區塊", description: "主標題與品牌資訊區塊底色" },
-        { key: "featureBg", label: "頂部照片卡", description: "單張照片與短文區塊底色" }
+        { key: "heroBg", label: "左上品牌區", description: "網站標題與 Logo 所在區域底色" },
+        { key: "featureBg", label: "本週精選卡片", description: "頂部照片與短文資訊卡底色" },
+        { key: "heroBrandText", label: "網站標題文字", description: "左上品牌標題與說明文字色" },
+        { key: "heroFeatureTitleText", label: "頂部短標文字", description: "本週精選標題文字色" }
       ]
     },
     {
-      title: "內容版面",
+      title: "商品內容區",
       note: "分類、商品列表、詳情與商品卡可各自設定單色。",
       fields: [
         { key: "sidebarBg", label: "分類側欄", description: "桌機側欄與手機抽屜底色" },
@@ -111,8 +117,8 @@ function resetThemeConfig() {
       ]
     },
     {
-      title: "按鈕與文字",
-      note: "統一控制重點按鈕、文字與框線色彩。",
+      title: "按鈕與通用文字",
+      note: "按鈕、重點色、內文字色與邊線都集中在這裡調整。",
       fields: [
         { key: "accent", label: "主按鈕", description: "主按鈕與重點色" },
         { key: "accentDeep", label: "深色點綴", description: "標題、分類與次重點色" },
@@ -2279,6 +2285,8 @@ function normalizeTheme(theme = {}) {
     pageBg: ["pageBg", "pageStart", "pageEnd"],
     heroBg: ["heroBg", "heroStart", "heroEnd"],
     featureBg: ["featureBg", "heroPanel", "heroEnd"],
+    heroBrandText: ["heroBrandText"],
+    heroFeatureTitleText: ["heroFeatureTitleText"],
     sidebarBg: ["sidebarBg", "catalogPanel"],
     catalogBg: ["catalogBg", "catalogPanel"],
     detailBg: ["detailBg", "detailPanel"],
