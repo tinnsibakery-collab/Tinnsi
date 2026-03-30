@@ -1,0 +1,21 @@
+@font-face {
+  font-family: "Swei Gothic";
+  src: url("../fonts/swei-gothic/SweiGothicCJKtc-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Swei Gothic";
+  src: url("../fonts/swei-gothic/SweiGothicCJKtc-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  --font-swei: "Swei Gothic", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-weight-body: 400;
+  --font-weight-heading: 700;
+}
