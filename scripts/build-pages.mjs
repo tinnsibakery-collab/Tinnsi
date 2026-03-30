@@ -12,7 +12,9 @@ async function main() {
   await copyFile("index.html");
   await copyDirectory("data");
   await copyFile("assets/styles/site.css");
+  await copyFile("assets/styles/fonts.css");
   await copyFile("assets/scripts/site.js");
+  await copyDirectoryIfExists("assets/fonts");
   await copyDirectory("assets/placeholders");
   await copyDirectoryIfExists("assets/products");
   await copyDirectoryIfExists("assets/site");
